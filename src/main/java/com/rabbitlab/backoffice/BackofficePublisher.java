@@ -91,7 +91,7 @@ public final class BackofficePublisher implements AutoCloseable {
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() throws IOException, TimeoutException {
         if (channel.isOpen()) {
             channel.close();
         }

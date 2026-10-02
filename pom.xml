@@ -52,6 +52,13 @@
             <version>${jackson.version}</version>
         </dependency>
 
+        <!-- amqp-client ve Testcontainers farklı slf4j sürümleri getiriyor; tek sürüme sabitliyoruz. -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${slf4j.version}</version>
+        </dependency>
+
         <!-- Test -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
