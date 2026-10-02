@@ -44,7 +44,7 @@ class StockWorkQueueTest extends RabbitMqTestSupport {
     void should_end_with_latest_stock_when_two_instances_process_out_of_order() throws Exception {
         try (StorefrontConsumer instanceA = new StorefrontConsumer(connection, queue, catalog::apply, 1);
              StorefrontConsumer instanceB = new StorefrontConsumer(connection, queue, catalog::apply, 1);
-             BackofficePublisher publisher = new BackofficePublisher(connection, queue)) {
+             BackofficePublisher publisher = BackofficePublisher.directToQueue(connection, queue)) {
             instanceA.start();
             instanceB.start();
 
@@ -62,7 +62,7 @@ class StockWorkQueueTest extends RabbitMqTestSupport {
 
     @Test
     void should_apply_stock_on_healthy_instance_when_other_instance_crashes_before_ack() throws Exception {
-        try (BackofficePublisher publisher = new BackofficePublisher(connection, queue)) {
+        try (BackofficePublisher publisher = BackofficePublisher.directToQueue(connection, queue)) {
             publisher.publish(new StockUpdated("SKU-1", 8, 1));
         }
 
@@ -88,7 +88,7 @@ class StockWorkQueueTest extends RabbitMqTestSupport {
             }
             catalog.apply(event);
         }, 1);
-             BackofficePublisher publisher = new BackofficePublisher(connection, queue)) {
+             BackofficePublisher publisher = BackofficePublisher.directToQueue(connection, queue)) {
             consumer.start();
 
             publisher.publish(new StockUpdated("SKU-1", 8, 1));
