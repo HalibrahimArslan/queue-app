@@ -6,15 +6,20 @@
 
     <parent>
         <groupId>com.rabbitlab</groupId>
-        <artifactId>rabbit-lab</artifactId>
+        <artifactId>backoffice</artifactId>
         <version>0.3.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>contract</artifactId>
-    <name>rabbit-lab :: contract</name>
-    <description>Backoffice ile Storefront arasındaki mesaj sözleşmesi. Bağımlılığı yok, Spring bilmez.</description>
+    <artifactId>backoffice-application</artifactId>
+    <name>rabbit-lab :: backoffice :: application</name>
+    <description>Application servisleri halkası: use case akışları. Sadece modeli bilir; framework'süz.</description>
 
     <dependencies>
+        <dependency>
+            <groupId>com.rabbitlab</groupId>
+            <artifactId>backoffice-model</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
@@ -23,11 +28,6 @@
         <dependency>
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.tngtech.archunit</groupId>
-            <artifactId>archunit-junit5</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
