@@ -9,6 +9,7 @@ RabbitMQ, DDD, Hexagonal ve Onion mimarisini TDD ile öğrenme projesi.
 | `phase-1-basics` | Faz 1 — saf `amqp-client` ile RabbitMQ temelleri |
 | `phase-2-hexagonal` | Faz 2 — DDD + Hexagonal, Spring Boot, PostgreSQL, Outbox, Cucumber |
 | `phase-3-onion` | Faz 3 — Onion: halka başına Maven modülü, okuma modeli, outbox/inbox temizliği |
+| `phase-4-operations` | Faz 4 — İşletim: LISTEN/NOTIFY, park kuyruğu yönetimi, sözleşme sürümü (devam ediyor) |
 
 - Senaryo: [docs/scenario.md](docs/scenario.md)
 - Sözlük: [docs/glossary.md](docs/glossary.md)
@@ -16,6 +17,7 @@ RabbitMQ, DDD, Hexagonal ve Onion mimarisini TDD ile öğrenme projesi.
 - Faz 2 inceleme rehberi: [docs/notes/faz-2-inceleme.md](docs/notes/faz-2-inceleme.md)
 - Faz 3 planı: [docs/notes/faz-3-plan.md](docs/notes/faz-3-plan.md)
 - Faz 3 inceleme rehberi: [docs/notes/faz-3-inceleme.md](docs/notes/faz-3-inceleme.md)
+- Faz 4 planı: [docs/notes/faz-4-plan.md](docs/notes/faz-4-plan.md)
 
 ## Gereksinimler
 - Java 21
@@ -47,8 +49,8 @@ docker compose up -d
 ```bash
 docker compose up -d
 ./mvnw -q package -DskipTests
-java -jar backoffice/infrastructure/target/backoffice-0.3.0-SNAPSHOT-exec.jar &
-java -jar storefront/infrastructure/target/storefront-0.3.0-SNAPSHOT-exec.jar &
+java -jar backoffice/infrastructure/target/backoffice-0.4.0-SNAPSHOT-exec.jar &
+java -jar storefront/infrastructure/target/storefront-0.4.0-SNAPSHOT-exec.jar &
 
 curl -X POST localhost:8081/products -H 'Content-Type: application/json' \
      -d '{"sku":"SKU-1","name":"Kupa","description":"Seramik kupa","price":100,"currency":"TRY"}'
