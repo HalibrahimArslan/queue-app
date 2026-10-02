@@ -6,11 +6,10 @@ import com.rabbitlab.storefront.domain.Sku;
 import com.rabbitlab.storefront.domainservice.CatalogRepository;
 import com.rabbitlab.storefront.domainservice.UnknownProductException;
 
-import java.util.List;
-import java.util.Optional;
 
 /**
- * Katalog use case'leri. Güncelleme kalıbı: kilitleyerek yükle → domain'e sor → değiştiyse kaydet.
+ * Kataloğu güncelleyen application servisi (yazma tarafı). Kalıp: kilitleyerek yükle → domain'e sor →
+ * değiştiyse kaydet. Okuma için {@link CatalogQueries} (P3-M3).
  *
  * <p>Neden kilit (pessimistic)? Backoffice'te optimistic locking kullandık: çakışma nadir, çakışınca
  * kullanıcıya "tekrar dene" denir. Burada ise katalog ve stok consumer'ları AYNI satıra sürekli yazıyor;
@@ -62,13 +61,7 @@ public final class CatalogService {
         }
     }
 
-    public Optional<CatalogItem> find(Sku sku) {
-        return repository.find(sku);
-    }
 
-    public List<CatalogItem> visibleItems() {
-        return repository.findVisible();
-    }
 
     @FunctionalInterface
     private interface Change {

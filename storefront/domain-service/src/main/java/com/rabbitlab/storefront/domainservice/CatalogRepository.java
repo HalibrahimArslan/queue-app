@@ -3,7 +3,6 @@ package com.rabbitlab.storefront.domainservice;
 import com.rabbitlab.storefront.domain.CatalogItem;
 import com.rabbitlab.storefront.domain.Sku;
 
-import java.util.List;
 import java.util.Optional;
 
 /** Katalog kalıcıdır. Onion'da repository arayüzü domain servisleri halkasında. */
@@ -21,8 +20,6 @@ public interface CatalogRepository {
     default CatalogItem getForUpdate(Sku sku) {
         return findForUpdate(sku).orElseThrow(() -> new UnknownProductException(sku));
     }
-
-    List<CatalogItem> findVisible();
 
     /** @return eklendiyse {@code true}; aynı SKU zaten varsa hiçbir şey yapmaz ve {@code false} döner */
     boolean insertIfAbsent(CatalogItem item);

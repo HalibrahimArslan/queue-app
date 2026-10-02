@@ -8,7 +8,6 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -46,10 +45,6 @@ class JdbcCatalogRepository implements CatalogRepository {
                 .param(sku.value()).query(MAPPER).optional();
     }
 
-    @Override
-    public List<CatalogItem> findVisible() {
-        return jdbc.sql("select " + COLUMNS + " from catalog_item where active order by sku").query(MAPPER).list();
-    }
 
     /**
      * {@code ON CONFLICT DO NOTHING}: aynı ürün iki consumer'a aynı anda gelirse ikincisi hata almaz,
