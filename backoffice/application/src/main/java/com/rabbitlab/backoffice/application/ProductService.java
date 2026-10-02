@@ -6,26 +6,28 @@ import com.rabbitlab.backoffice.application.port.in.DeactivateProductUseCase;
 import com.rabbitlab.backoffice.application.port.in.UpdateProductCommand;
 import com.rabbitlab.backoffice.application.port.in.UpdateProductUseCase;
 import com.rabbitlab.backoffice.application.port.out.EventOutbox;
-import com.rabbitlab.backoffice.application.port.out.InventoryRepository;
-import com.rabbitlab.backoffice.application.port.out.ProductRepository;
 import com.rabbitlab.backoffice.application.port.out.Transaction;
 import com.rabbitlab.backoffice.domain.Sku;
-import com.rabbitlab.backoffice.domain.inventory.Inventory;
 import com.rabbitlab.backoffice.domain.product.Product;
+import com.rabbitlab.backoffice.domainservice.InventoryRepository;
+import com.rabbitlab.backoffice.domainservice.ProductRegistration;
+import com.rabbitlab.backoffice.domainservice.ProductRepository;
 
 /**
  * Ürün use case'leri. Her metot aynı kalıbı izler: yükle → domain'e sor → kaydet → event'leri outbox'a yaz.
- * Kurallar domain'de; servis sadece akışı yönetir (orkestrasyon).
+ * Kurallar domain'de (model ve domain servisleri); servis sadece akışı yönetir (orkestrasyon).
  */
 public final class ProductService implements CreateProductUseCase, UpdateProductUseCase, DeactivateProductUseCase {
 
+    private final ProductRegistration registration;
     private final ProductRepository products;
     private final InventoryRepository inventories;
     private final EventOutbox outbox;
     private final Transaction transaction;
 
-    public ProductService(ProductRepository products, InventoryRepository inventories, EventOutbox outbox,
-                          Transaction transaction) {
+    public ProductService(ProductRegistration registration, ProductRepository products,
+                          InventoryRepository inventories, EventOutbox outbox, Transaction transaction) {
+        this.registration = registration;
         this.products = products;
         this.inventories = inventories;
         this.outbox = outbox;
@@ -35,22 +37,18 @@ public final class ProductService implements CreateProductUseCase, UpdateProduct
     @Override
     public void create(CreateProductCommand command) {
         transaction.execute(() -> {
-            if (products.findBySku(command.sku()).isPresent()) {
-                throw new DuplicateSkuException(command.sku());
-            }
-            Product product = Product.create(command.sku(), command.name(), command.description(), command.price());
-            // Ürün ve stoğu aynı anda açılır: "ürünü olan ama stok kaydı olmayan" bir durum hiç oluşmaz.
-            Inventory inventory = Inventory.open(command.sku());
-            products.save(product);
-            inventories.save(inventory);
-            outbox.append(product.pullEvents());
+            ProductRegistration.Registered registered = registration.register(
+                    command.sku(), command.name(), command.description(), command.price());
+            products.save(registered.product());
+            inventories.save(registered.inventory());
+            outbox.append(registered.product().pullEvents());
         });
     }
 
     @Override
     public void update(UpdateProductCommand command) {
         transaction.execute(() -> {
-            Product product = existing(command.sku());
+            Product product = products.get(command.sku());
             product.update(command.name(), command.description(), command.price());
             save(product);
         });
@@ -59,14 +57,10 @@ public final class ProductService implements CreateProductUseCase, UpdateProduct
     @Override
     public void deactivate(Sku sku) {
         transaction.execute(() -> {
-            Product product = existing(sku);
+            Product product = products.get(sku);
             product.deactivate();
             save(product);
         });
-    }
-
-    private Product existing(Sku sku) {
-        return products.findBySku(sku).orElseThrow(() -> new ProductNotFoundException(sku));
     }
 
     private void save(Product product) {

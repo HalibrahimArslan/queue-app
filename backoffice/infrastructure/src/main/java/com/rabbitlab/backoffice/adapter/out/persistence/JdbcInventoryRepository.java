@@ -1,9 +1,9 @@
 package com.rabbitlab.backoffice.adapter.out.persistence;
 
-import com.rabbitlab.backoffice.application.port.out.ConcurrentUpdateException;
-import com.rabbitlab.backoffice.application.port.out.InventoryRepository;
 import com.rabbitlab.backoffice.domain.Sku;
 import com.rabbitlab.backoffice.domain.inventory.Inventory;
+import com.rabbitlab.backoffice.domainservice.ConcurrentUpdateException;
+import com.rabbitlab.backoffice.domainservice.InventoryRepository;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
 

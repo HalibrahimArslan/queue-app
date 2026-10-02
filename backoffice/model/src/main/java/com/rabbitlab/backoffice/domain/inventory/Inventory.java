@@ -1,6 +1,7 @@
 package com.rabbitlab.backoffice.domain.inventory;
 
 import com.rabbitlab.backoffice.domain.AggregateRoot;
+import com.rabbitlab.backoffice.domain.InvalidValueException;
 import com.rabbitlab.backoffice.domain.Require;
 import com.rabbitlab.backoffice.domain.Sku;
 import com.rabbitlab.backoffice.domain.event.StockUpdated;
@@ -44,7 +45,7 @@ public final class Inventory extends AggregateRoot {
 
     public void count(int quantity) {
         if (quantity < 0) {
-            throw new IllegalArgumentException("Stok negatif olamaz: " + quantity);
+            throw new InvalidValueException("Stok negatif olamaz: " + quantity);
         }
         if (this.quantity == quantity) {
             return;

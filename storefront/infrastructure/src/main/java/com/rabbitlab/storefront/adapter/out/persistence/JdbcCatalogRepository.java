@@ -1,9 +1,9 @@
 package com.rabbitlab.storefront.adapter.out.persistence;
 
-import com.rabbitlab.storefront.application.port.out.CatalogRepository;
 import com.rabbitlab.storefront.domain.CatalogItem;
 import com.rabbitlab.storefront.domain.Price;
 import com.rabbitlab.storefront.domain.Sku;
+import com.rabbitlab.storefront.domainservice.CatalogRepository;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;

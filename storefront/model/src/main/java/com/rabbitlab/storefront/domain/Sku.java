@@ -5,7 +5,7 @@ public record Sku(String value) {
 
     public Sku {
         if (value == null || value.isBlank()) {
-            throw new IllegalArgumentException("sku boş olamaz");
+            throw new InvalidValueException("sku boş olamaz");
         }
     }
 

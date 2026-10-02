@@ -17,6 +17,7 @@
 
     <modules>
         <module>model</module>
+        <module>domain-service</module>
         <module>application</module>
         <module>infrastructure</module>
     </modules>

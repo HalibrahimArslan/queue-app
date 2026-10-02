@@ -3,9 +3,9 @@ package com.rabbitlab.backoffice.application;
 import com.rabbitlab.backoffice.application.port.in.CountStockCommand;
 import com.rabbitlab.backoffice.application.port.in.CountStockUseCase;
 import com.rabbitlab.backoffice.application.port.out.EventOutbox;
-import com.rabbitlab.backoffice.application.port.out.InventoryRepository;
 import com.rabbitlab.backoffice.application.port.out.Transaction;
 import com.rabbitlab.backoffice.domain.inventory.Inventory;
+import com.rabbitlab.backoffice.domainservice.InventoryRepository;
 
 /**
  * Stok use case'i. Product'ı hiç yüklemez: ayrı aggregate olmanın faydası, fiyat güncellemesi ile
@@ -26,9 +26,7 @@ public final class InventoryService implements CountStockUseCase {
     @Override
     public void count(CountStockCommand command) {
         transaction.execute(() -> {
-            // Inventory, ürünle birlikte açılır; inventory yoksa ürün de yoktur.
-            Inventory inventory = inventories.findBySku(command.sku())
-                    .orElseThrow(() -> new ProductNotFoundException(command.sku()));
+            Inventory inventory = inventories.get(command.sku());
             inventory.count(command.quantity());
             var events = inventory.pullEvents();
             if (events.isEmpty()) {

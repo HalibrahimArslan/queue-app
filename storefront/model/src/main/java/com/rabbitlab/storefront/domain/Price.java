@@ -8,15 +8,15 @@ public record Price(BigDecimal amount, String currency) {
 
     public Price {
         if (amount == null || amount.signum() <= 0) {
-            throw new IllegalArgumentException("price sıfırdan büyük olmalı: " + amount);
+            throw new InvalidValueException("price sıfırdan büyük olmalı: " + amount);
         }
         if (currency == null || currency.isBlank()) {
-            throw new IllegalArgumentException("currency boş olamaz");
+            throw new InvalidValueException("currency boş olamaz");
         }
         try {
             amount = amount.setScale(2, RoundingMode.UNNECESSARY);
         } catch (ArithmeticException e) {
-            throw new IllegalArgumentException("price en fazla 2 ondalık olabilir: " + amount);
+            throw new InvalidValueException("price en fazla 2 ondalık olabilir: " + amount);
         }
     }
 }

@@ -3,10 +3,10 @@ package com.rabbitlab.storefront.application;
 import com.rabbitlab.storefront.application.port.in.BrowseCatalogUseCase;
 import com.rabbitlab.storefront.application.port.in.CatalogUpdate;
 import com.rabbitlab.storefront.application.port.in.UpdateCatalogUseCase;
-import com.rabbitlab.storefront.application.port.out.CatalogRepository;
 import com.rabbitlab.storefront.application.port.out.Transaction;
 import com.rabbitlab.storefront.domain.CatalogItem;
 import com.rabbitlab.storefront.domain.Sku;
+import com.rabbitlab.storefront.domainservice.CatalogRepository;
 
 import java.util.List;
 import java.util.Optional;
@@ -43,7 +43,7 @@ public final class CatalogService implements UpdateCatalogUseCase, BrowseCatalog
     }
 
     private void change(Sku sku, Change change) {
-        CatalogItem item = repository.findForUpdate(sku).orElseThrow(() -> new UnknownProductException(sku));
+        CatalogItem item = repository.getForUpdate(sku);
         if (change.applyTo(item)) {
             repository.update(item);
         }

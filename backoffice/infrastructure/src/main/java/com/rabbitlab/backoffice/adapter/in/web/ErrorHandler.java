@@ -1,33 +1,33 @@
 package com.rabbitlab.backoffice.adapter.in.web;
 
-import com.rabbitlab.backoffice.application.DuplicateSkuException;
-import com.rabbitlab.backoffice.application.ProductNotFoundException;
-import com.rabbitlab.backoffice.application.port.out.ConcurrentUpdateException;
-import com.rabbitlab.backoffice.domain.product.ProductInactiveException;
+import com.rabbitlab.backoffice.domain.InvalidValueException;
+import com.rabbitlab.backoffice.domain.NotFoundException;
+import com.rabbitlab.backoffice.domain.RuleViolationException;
+import com.rabbitlab.backoffice.domainservice.ConcurrentUpdateException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 /**
- * Domain ve application hatalarını HTTP'ye çevirir (RFC 9457 Problem Details). Domain HTTP bilmez;
- * çeviri adapter'ın işi.
+ * Domain hatalarını HTTP'ye çevirir (RFC 9457 Problem Details). Tek tek exception sınıflarını değil,
+ * domain'in hata TÜRLERİNİ tanır; yeni bir kural ihlali eklemek bu sınıfı değiştirmez.
  */
 @RestControllerAdvice
 class ErrorHandler {
 
-    @ExceptionHandler(IllegalArgumentException.class)
-    ProblemDetail invalid(IllegalArgumentException e) {
+    @ExceptionHandler(InvalidValueException.class)
+    ProblemDetail invalid(InvalidValueException e) {
         return ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, e.getMessage());
     }
 
-    @ExceptionHandler(ProductNotFoundException.class)
-    ProblemDetail notFound(ProductNotFoundException e) {
+    @ExceptionHandler(NotFoundException.class)
+    ProblemDetail notFound(NotFoundException e) {
         return ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, e.getMessage());
     }
 
-    /** 409: istek geçerli ama ürünün mevcut durumuyla çelişiyor. */
-    @ExceptionHandler({DuplicateSkuException.class, ProductInactiveException.class, ConcurrentUpdateException.class})
+    /** 409: istek geçerli ama ürünün mevcut durumuyla (veya eşzamanlı bir değişiklikle) çelişiyor. */
+    @ExceptionHandler({RuleViolationException.class, ConcurrentUpdateException.class})
     ProblemDetail conflict(RuntimeException e) {
         return ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, e.getMessage());
     }

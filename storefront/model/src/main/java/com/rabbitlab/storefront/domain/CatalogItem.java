@@ -22,7 +22,7 @@ public final class CatalogItem {
     private CatalogItem(Sku sku, String name, String description, Price price, int stock, boolean active,
                         long detailsVersion, long stockVersion) {
         if (sku == null) {
-            throw new IllegalArgumentException("sku boş olamaz");
+            throw new InvalidValueException("sku boş olamaz");
         }
         this.sku = sku;
         this.name = requireName(name);
@@ -85,28 +85,28 @@ public final class CatalogItem {
 
     private static String requireName(String name) {
         if (name == null || name.isBlank()) {
-            throw new IllegalArgumentException("name boş olamaz");
+            throw new InvalidValueException("name boş olamaz");
         }
         return name;
     }
 
     private static Price requirePrice(Price price) {
         if (price == null) {
-            throw new IllegalArgumentException("price boş olamaz");
+            throw new InvalidValueException("price boş olamaz");
         }
         return price;
     }
 
     private static int requireStock(int quantity) {
         if (quantity < 0) {
-            throw new IllegalArgumentException("stok negatif olamaz: " + quantity);
+            throw new InvalidValueException("stok negatif olamaz: " + quantity);
         }
         return quantity;
     }
 
     private static long requireVersion(long version) {
         if (version < 1) {
-            throw new IllegalArgumentException("version 1 veya daha büyük olmalı: " + version);
+            throw new InvalidValueException("version 1 veya daha büyük olmalı: " + version);
         }
         return version;
     }

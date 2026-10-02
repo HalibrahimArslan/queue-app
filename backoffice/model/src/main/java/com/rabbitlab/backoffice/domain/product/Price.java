@@ -1,5 +1,6 @@
 package com.rabbitlab.backoffice.domain.product;
 
+import com.rabbitlab.backoffice.domain.InvalidValueException;
 import com.rabbitlab.backoffice.domain.Require;
 
 import java.math.BigDecimal;
@@ -20,12 +21,12 @@ public record Price(BigDecimal amount, String currency) {
         Require.notNull(amount, "price");
         Require.notBlank(currency, "currency");
         if (amount.signum() <= 0) {
-            throw new IllegalArgumentException("price sıfırdan büyük olmalı: " + amount);
+            throw new InvalidValueException("price sıfırdan büyük olmalı: " + amount);
         }
         try {
             amount = amount.setScale(SCALE, RoundingMode.UNNECESSARY);
         } catch (ArithmeticException e) {
-            throw new IllegalArgumentException("price en fazla " + SCALE + " ondalık olabilir: " + amount);
+            throw new InvalidValueException("price en fazla " + SCALE + " ondalık olabilir: " + amount);
         }
     }
 }

@@ -1,5 +1,6 @@
 package com.rabbitlab.storefront.application.port.in;
 
+import com.rabbitlab.storefront.domain.InvalidValueException;
 import com.rabbitlab.storefront.domain.Price;
 import com.rabbitlab.storefront.domain.Sku;
 
@@ -51,7 +52,7 @@ public sealed interface CatalogUpdate {
 
     private static void require(boolean condition, String message) {
         if (!condition) {
-            throw new IllegalArgumentException(message);
+            throw new InvalidValueException(message);
         }
     }
 }

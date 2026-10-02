@@ -8,14 +8,14 @@ public final class Require {
 
     public static String notBlank(String value, String field) {
         if (value == null || value.isBlank()) {
-            throw new IllegalArgumentException(field + " boş olamaz");
+            throw new InvalidValueException(field + " boş olamaz");
         }
         return value;
     }
 
     public static <T> T notNull(T value, String field) {
         if (value == null) {
-            throw new IllegalArgumentException(field + " boş olamaz");
+            throw new InvalidValueException(field + " boş olamaz");
         }
         return value;
     }

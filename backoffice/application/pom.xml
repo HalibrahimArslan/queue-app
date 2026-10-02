@@ -12,12 +12,18 @@
 
     <artifactId>backoffice-application</artifactId>
     <name>rabbit-lab :: backoffice :: application</name>
-    <description>Application servisleri halkası: use case akışları. Sadece modeli bilir; framework'süz.</description>
+    <description>Application servisleri halkası: use case akışları. Domain servislerini ve modeli bilir; framework'süz.</description>
 
     <dependencies>
         <dependency>
             <groupId>com.rabbitlab</groupId>
-            <artifactId>backoffice-model</artifactId>
+            <artifactId>backoffice-domain-service</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.rabbitlab</groupId>
+            <artifactId>backoffice-domain-service</artifactId>
+            <type>test-jar</type>
+            <scope>test</scope>
         </dependency>
 
         <dependency>

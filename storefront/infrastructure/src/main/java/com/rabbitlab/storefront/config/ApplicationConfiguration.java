@@ -1,8 +1,8 @@
 package com.rabbitlab.storefront.config;
 
 import com.rabbitlab.storefront.application.CatalogService;
-import com.rabbitlab.storefront.application.port.out.CatalogRepository;
 import com.rabbitlab.storefront.application.port.out.Transaction;
+import com.rabbitlab.storefront.domainservice.CatalogRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 

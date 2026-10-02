@@ -7,6 +7,7 @@ import com.rabbitlab.contract.ProductDeactivatedMessage;
 import com.rabbitlab.contract.ProductUpdatedMessage;
 import com.rabbitlab.contract.StockUpdatedMessage;
 import com.rabbitlab.storefront.application.port.in.CatalogUpdate;
+import com.rabbitlab.storefront.domain.InvalidValueException;
 import com.rabbitlab.storefront.domain.Price;
 import com.rabbitlab.storefront.domain.Sku;
 import org.springframework.amqp.core.Message;
@@ -34,8 +35,8 @@ class MessageTranslator {
         try {
             BackofficeMessage contract = json.readValue(message.getBody(), BackofficeEvents.classOf(type));
             return toUpdate(contract);
-        } catch (JacksonException | IllegalArgumentException e) {
-            // Bilinmeyen tip, bozuk JSON, eksik alan, negatif stok...
+        } catch (JacksonException | InvalidValueException | IllegalArgumentException e) {
+            // Bozuk JSON / eksik alan (Jackson), negatif stok (domain), bilinmeyen tip (sözleşme: IllegalArgumentException)
             throw new InvalidMessageException("Mesaj okunamadı (" + type + "): " + e.getMessage(), e);
         }
     }

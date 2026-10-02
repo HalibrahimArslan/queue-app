@@ -3,9 +3,10 @@ package com.rabbitlab.backoffice.config;
 import com.rabbitlab.backoffice.application.InventoryService;
 import com.rabbitlab.backoffice.application.ProductService;
 import com.rabbitlab.backoffice.application.port.out.EventOutbox;
-import com.rabbitlab.backoffice.application.port.out.InventoryRepository;
-import com.rabbitlab.backoffice.application.port.out.ProductRepository;
 import com.rabbitlab.backoffice.application.port.out.Transaction;
+import com.rabbitlab.backoffice.domainservice.InventoryRepository;
+import com.rabbitlab.backoffice.domainservice.ProductRegistration;
+import com.rabbitlab.backoffice.domainservice.ProductRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -17,9 +18,14 @@ import org.springframework.context.annotation.Configuration;
 class ApplicationConfiguration {
 
     @Bean
-    ProductService productService(ProductRepository products, InventoryRepository inventories, EventOutbox outbox,
-                                  Transaction transaction) {
-        return new ProductService(products, inventories, outbox, transaction);
+    ProductRegistration productRegistration(ProductRepository products) {
+        return new ProductRegistration(products);
+    }
+
+    @Bean
+    ProductService productService(ProductRegistration registration, ProductRepository products,
+                                  InventoryRepository inventories, EventOutbox outbox, Transaction transaction) {
+        return new ProductService(registration, products, inventories, outbox, transaction);
     }
 
     @Bean

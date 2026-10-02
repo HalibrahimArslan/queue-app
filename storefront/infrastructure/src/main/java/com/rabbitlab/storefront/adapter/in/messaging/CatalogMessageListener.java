@@ -2,6 +2,7 @@ package com.rabbitlab.storefront.adapter.in.messaging;
 
 import com.rabbitlab.storefront.application.port.in.CatalogUpdate;
 import com.rabbitlab.storefront.application.port.in.UpdateCatalogUseCase;
+import com.rabbitlab.storefront.domain.InvalidValueException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.AmqpRejectAndDontRequeueException;
@@ -68,7 +69,7 @@ class CatalogMessageListener {
         try {
             CatalogUpdate update = translator.translate(message);
             apply(message.getMessageProperties().getMessageId(), update);
-        } catch (InvalidMessageException | IllegalArgumentException e) {
+        } catch (InvalidMessageException | InvalidValueException e) {
             park(message, queue, attempt, e);
         } catch (RuntimeException e) {
             if (attempt >= properties.maxAttempts()) {
