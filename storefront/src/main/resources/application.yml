@@ -10,6 +10,18 @@ spring:
     port: 5672
     username: rabbitlab
     password: rabbitlab
+    publisher-confirm-type: simple      # park kuyruğuna taşınan mesaj için onay beklenir
+    listener:
+      simple:
+        acknowledge-mode: auto          # listener normal dönerse ack, exception fırlatırsa reject
+        default-requeue-rejected: false # reject → DLX → bekleme odası (anında requeue döngüsü yok)
+        prefetch: 10
+        concurrency: 1                  # kuyruk başına tek consumer; sıra kuyruk içinde korunur
+
+storefront:
+  messaging:
+    retry-delay: 5s   # bekleme odasında kalma süresi (TTL)
+    max-attempts: 3   # geçici hatada en fazla kaç deneme, sonra park
 
 server:
   port: 8082
