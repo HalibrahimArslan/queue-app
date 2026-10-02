@@ -1,5 +1,6 @@
 package com.rabbitlab.support;
 
+import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import org.junit.jupiter.api.AfterEach;
@@ -8,6 +9,7 @@ import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.utility.DockerImageName;
 
+import java.io.IOException;
 import java.time.Duration;
 import java.util.UUID;
 
@@ -64,6 +66,15 @@ public abstract class RabbitMqTestSupport {
         // Testlerde sürpriz istemiyoruz: bağlantı koparsa kendiliğinden yeniden bağlanmasın.
         factory.setAutomaticRecoveryEnabled(false);
         return factory;
+    }
+
+    /**
+     * Testlerde kullandığımız standart kuyruk: durable (broker restart'ta silinmez), exclusive değil,
+     * auto-delete değil. RabbitMQ 4'te "transient" (durable olmayan) paylaşılan kuyruklar
+     * deprecated olduğu için testlerde de durable kullanıyoruz.
+     */
+    protected static void declareQueue(Channel channel, String queue) throws IOException {
+        channel.queueDeclare(queue, true, false, false, null);
     }
 
     protected static String uniqueName(String base) {
