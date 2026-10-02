@@ -4,9 +4,7 @@ import com.rabbitlab.storefront.domain.CatalogItem;
 import com.rabbitlab.storefront.domain.Sku;
 import com.rabbitlab.storefront.domainservice.CatalogRepository;
 
-import java.util.Comparator;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -24,11 +22,6 @@ class InMemoryCatalogRepository implements CatalogRepository {
         return find(sku);
     }
 
-    @Override
-    public List<CatalogItem> findVisible() {
-        return items.values().stream().filter(CatalogItem::active)
-                .sorted(Comparator.comparing(item -> item.sku().value())).toList();
-    }
 
     @Override
     public boolean insertIfAbsent(CatalogItem item) {

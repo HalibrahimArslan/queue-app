@@ -1,9 +1,7 @@
 package com.rabbitlab.storefront.adapter.in.web;
 
-import com.rabbitlab.storefront.application.CatalogService;
-import com.rabbitlab.storefront.domain.CatalogItem;
-import com.rabbitlab.storefront.domain.Price;
-import com.rabbitlab.storefront.domain.Sku;
+import com.rabbitlab.storefront.application.CatalogQueries;
+import com.rabbitlab.storefront.application.CatalogView;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
@@ -18,7 +16,10 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-/** P2-M6 — Vitrini okuyan REST adapter'ı. */
+/**
+ * Vitrini okuyan REST girişi. P3-M3: controller domain modelini hiç görmüyor; okuma tarafının
+ * görünüm nesnesiyle ({@link CatalogView}) çalışıyor.
+ */
 @WebMvcTest(CatalogController.class)
 class CatalogControllerTest {
 
@@ -26,16 +27,16 @@ class CatalogControllerTest {
     MockMvcTester mvc;
 
     @MockitoBean
-    CatalogService catalog;
+    CatalogQueries queries;
 
-    private static CatalogItem kupa(int stock, boolean active) {
-        return CatalogItem.restore(new Sku("SKU-1"), "Kupa", "Seramik kupa", new Price(new BigDecimal("100"), "TRY"),
-                stock, active, 2, 1);
+    private static CatalogView kupa(int stock, boolean active) {
+        return new CatalogView("SKU-1", "Kupa", "Seramik kupa", new BigDecimal("100.00"), "TRY", stock, stock == 0,
+                active);
     }
 
     @Test
     void should_list_visible_items() {
-        when(catalog.visibleItems()).thenReturn(List.of(kupa(0, true)));
+        when(queries.visible()).thenReturn(List.of(kupa(0, true)));
 
         assertThat(mvc.get().uri("/catalog")).hasStatusOk().bodyJson().isLenientlyEqualTo("""
                 [{"sku": "SKU-1", "name": "Kupa", "description": "Seramik kupa", "price": 100.00,
@@ -44,7 +45,7 @@ class CatalogControllerTest {
 
     @Test
     void should_show_single_item_even_when_inactive() {
-        when(catalog.find(new Sku("SKU-1"))).thenReturn(Optional.of(kupa(5, false)));
+        when(queries.find("SKU-1")).thenReturn(Optional.of(kupa(5, false)));
 
         assertThat(mvc.get().uri("/catalog/SKU-1")).hasStatusOk().bodyJson().isLenientlyEqualTo("""
                 {"sku": "SKU-1", "stock": 5, "outOfStock": false, "active": false}""");
@@ -52,7 +53,7 @@ class CatalogControllerTest {
 
     @Test
     void should_answer_not_found_for_unknown_item() {
-        when(catalog.find(new Sku("SKU-9"))).thenReturn(Optional.empty());
+        when(queries.find("SKU-9")).thenReturn(Optional.empty());
 
         assertThat(mvc.get().uri("/catalog/SKU-9")).hasStatus(HttpStatus.NOT_FOUND);
     }

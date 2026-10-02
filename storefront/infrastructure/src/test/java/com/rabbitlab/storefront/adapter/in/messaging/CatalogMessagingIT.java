@@ -7,7 +7,7 @@ import com.rabbitlab.contract.ProductDeactivatedMessage;
 import com.rabbitlab.contract.ProductUpdatedMessage;
 import com.rabbitlab.contract.StockUpdatedMessage;
 import com.rabbitlab.storefront.TestcontainersConfiguration;
-import com.rabbitlab.storefront.application.CatalogService;
+import com.rabbitlab.storefront.domainservice.CatalogRepository;
 import com.rabbitlab.storefront.domain.CatalogItem;
 import com.rabbitlab.storefront.domain.Sku;
 import org.junit.jupiter.api.Test;
@@ -54,8 +54,9 @@ class CatalogMessagingIT {
     @Autowired
     JsonMapper json;
 
+    /** Kataloğun iç durumuna (versiyonlar dahil) bakmak için doğrudan repository. */
     @Autowired
-    CatalogService catalog;
+    CatalogRepository catalog;
 
     private final String sku = "SKU-" + UUID.randomUUID().toString().substring(0, 8);
 

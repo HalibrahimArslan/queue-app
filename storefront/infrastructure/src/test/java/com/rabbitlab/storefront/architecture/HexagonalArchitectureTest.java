@@ -57,6 +57,12 @@ class HexagonalArchitectureTest {
 
 
     @ArchTest
+    static final ArchRule web_never_sees_domain_model = noClasses()
+            .that().resideInAPackage("..storefront.adapter.in.web..")
+            .should().dependOnClassesThat().resideInAPackage("..storefront.domain..")
+            .because("vitrin okuma modeliyle (CatalogView) çalışır; domain nesnesine erişen değiştirebilir de (P3-M3)");
+
+    @ArchTest
     static final ArchRule nothing_depends_on_wiring = noClasses()
             .that().resideOutsideOfPackage("..storefront.config..")
             .should().dependOnClassesThat().resideInAPackage("..storefront.config..")

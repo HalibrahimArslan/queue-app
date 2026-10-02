@@ -1,7 +1,10 @@
 package com.rabbitlab.storefront.adapter.out.persistence;
 
 import com.rabbitlab.storefront.TestcontainersConfiguration;
+import com.rabbitlab.storefront.application.CatalogQueries;
 import com.rabbitlab.storefront.application.CatalogService;
+import com.rabbitlab.storefront.application.CatalogView;
+import com.rabbitlab.storefront.domainservice.CatalogRepository;
 import com.rabbitlab.storefront.application.CatalogUpdate;
 import com.rabbitlab.storefront.domain.CatalogItem;
 import com.rabbitlab.storefront.domain.Price;
@@ -35,6 +38,12 @@ class CatalogPersistenceIT {
     CatalogService catalog;
 
     @Autowired
+    CatalogRepository repository;
+
+    @Autowired
+    CatalogQueries queries;
+
+    @Autowired
     JdbcClient jdbc;
 
     private final Sku sku = new Sku("SKU-" + UUID.randomUUID().toString().substring(0, 8));
@@ -59,7 +68,7 @@ class CatalogPersistenceIT {
         assertThat(row.get("details_version")).isEqualTo(1L);
         assertThat(row.get("stock_version")).isEqualTo(1L);
 
-        CatalogItem item = catalog.find(sku).orElseThrow();
+        CatalogItem item = repository.find(sku).orElseThrow();
         assertThat(item.price()).isEqualTo(try_("100"));
         assertThat(item.active()).isTrue();
     }
@@ -96,7 +105,7 @@ class CatalogPersistenceIT {
                     .toArray(CompletableFuture[]::new)).join();
         }
 
-        CatalogItem item = catalog.find(sku).orElseThrow();
+        CatalogItem item = repository.find(sku).orElseThrow();
         assertThat(item.stock()).isEqualTo(200);
         assertThat(item.stockVersion()).isEqualTo(20);
         assertThat(item.price()).isEqualTo(try_("120"));
@@ -111,6 +120,6 @@ class CatalogPersistenceIT {
 
         catalog.apply(newId(), new CatalogUpdate.Withdrawn(other, 2));
 
-        assertThat(catalog.visibleItems()).extracting(CatalogItem::sku).contains(sku).doesNotContain(other);
+        assertThat(queries.visible()).extracting(CatalogView::sku).contains(sku.value()).doesNotContain(other.value());
     }
 }

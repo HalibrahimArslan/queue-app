@@ -18,6 +18,9 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  *
  * <p>P3-M2: "Bu değişiklik daha önce işlendi mi?" sorusu (inbox) artık servisin içinde. Faz 2'de
  * listener soruyordu ve use case'in transaction'ını dıştan sarıyordu (acıtan nokta 2).
+ *
+ * <p>P3-M3: Servis sadece yazar. Okumak için {@code CatalogQueries} var; sonucu burada sahte
+ * repository'nin içine bakarak doğruluyoruz.
  */
 class CatalogServiceTest {
 
@@ -41,8 +44,8 @@ class CatalogServiceTest {
     void should_show_new_product_as_visible_and_out_of_stock() {
         service.apply(newId(), new CatalogUpdate.NewProduct(SKU, "Kupa", "Seramik kupa", PRICE, 1));
 
-        assertThat(service.visibleItems()).singleElement().satisfies(item -> {
-            assertThat(item.sku()).isEqualTo(SKU);
+        assertThat(repository.items.get(SKU)).satisfies(item -> {
+            assertThat(item.active()).isTrue();
             assertThat(item.outOfStock()).isTrue();
         });
     }
@@ -52,7 +55,7 @@ class CatalogServiceTest {
         service.apply(newId(), new CatalogUpdate.NewProduct(SKU, "Kupa", "Seramik kupa", PRICE, 1));
         service.apply(newId(), new CatalogUpdate.NewProduct(SKU, "Kupa", "Seramik kupa", PRICE, 1));
 
-        assertThat(service.visibleItems()).hasSize(1);
+        assertThat(repository.items).hasSize(1);
     }
 
     @Test
@@ -63,7 +66,7 @@ class CatalogServiceTest {
         service.apply(newId(), new CatalogUpdate.DetailsChanged(SKU, "Büyük kupa", null,
                 new Price(new BigDecimal("120"), "TRY"), 2));
 
-        assertThat(service.find(SKU)).hasValueSatisfying(item -> {
+        assertThat(repository.items.get(SKU)).satisfies(item -> {
             assertThat(item.stock()).isEqualTo(8);
             assertThat(item.name()).isEqualTo("Büyük kupa");
         });
@@ -75,8 +78,7 @@ class CatalogServiceTest {
 
         service.apply(newId(), new CatalogUpdate.Withdrawn(SKU, 2));
 
-        assertThat(service.visibleItems()).isEmpty();
-        assertThat(service.find(SKU)).isPresent();
+        assertThat(repository.items.get(SKU).active()).isFalse();
     }
 
     @Test
@@ -95,7 +97,7 @@ class CatalogServiceTest {
         service.apply(id, new CatalogUpdate.StockChanged(SKU, 8, 1));
         service.apply(id, new CatalogUpdate.StockChanged(SKU, 99, 2)); // aynı kimlik, farklı içerik
 
-        assertThat(service.find(SKU).orElseThrow().stock()).isEqualTo(8);
+        assertThat(repository.items.get(SKU).stock()).isEqualTo(8);
     }
 
     @Test
