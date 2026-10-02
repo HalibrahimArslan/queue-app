@@ -8,7 +8,6 @@ import com.rabbitlab.backoffice.domain.product.Price;
 import com.rabbitlab.contract.BackofficeEvents;
 import org.junit.jupiter.api.Test;
 import org.springframework.amqp.core.AmqpAdmin;
-import org.springframework.amqp.core.AnonymousQueue;
 import org.springframework.amqp.core.BindingBuilder;
 import org.springframework.amqp.core.MessageDeliveryMode;
 import org.springframework.amqp.core.Queue;
@@ -43,7 +42,8 @@ class OutboxRelaySchedulingIT {
 
     @Test
     void should_deliver_persistent_message_shortly_after_use_case_returns() {
-        Queue queue = new AnonymousQueue();
+        // AnonymousQueue değil: o auto-delete; ilk receive() consumer'ı kapatınca kuyruk silinir.
+        Queue queue = new Queue("test." + UUID.randomUUID(), true, false, false);
         admin.declareQueue(queue);
         admin.declareBinding(BindingBuilder.bind(queue).to(new TopicExchange(BackofficeEvents.EXCHANGE)).with("#"));
         Sku sku = new Sku("SKU-" + UUID.randomUUID().toString().substring(0, 8));

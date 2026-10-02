@@ -12,7 +12,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.amqp.core.AmqpAdmin;
-import org.springframework.amqp.core.AnonymousQueue;
 import org.springframework.amqp.core.BindingBuilder;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.Queue;
@@ -23,6 +22,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.simple.JdbcClient;
 
+import tools.jackson.databind.json.JsonMapper;
+
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +31,6 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -68,6 +68,9 @@ class OutboxRelayIT {
     @Autowired
     RabbitTemplate rabbit;
 
+    @Autowired
+    JsonMapper json;
+
     private final Price price = new Price(new BigDecimal("100"), "TRY");
     private final List<Queue> queues = new ArrayList<>();
 
@@ -98,7 +101,9 @@ class OutboxRelayIT {
         assertThat(created.getMessageProperties().getReceivedRoutingKey()).isEqualTo("product.created");
         assertThat(created.getMessageProperties().getContentType()).isEqualTo("application/json");
         assertThat(created.getMessageProperties().getMessageId()).isEqualTo(messageIdOf(sku, "ProductCreated"));
-        assertThat(new String(created.getBody(), UTF_8)).contains("\"sku\":\"" + sku + "\"");
+        // Gövde bir JSON nesnesi; jsonb anahtar sırasını ve boşlukları normalleştirir, bu yüzden metin
+        // değil alan karşılaştırıyoruz.
+        assertThat(json.readTree(created.getBody()).get("sku").asString()).isEqualTo(sku.value());
         assertThat(rabbit.receive(queue.getName(), 3_000).getMessageProperties().getType()).isEqualTo("StockUpdated");
     }
 
@@ -172,7 +177,8 @@ class OutboxRelayIT {
     }
 
     private Queue listenTo(String... bindingKeys) {
-        Queue queue = new AnonymousQueue();
+        // AnonymousQueue değil: o auto-delete; ilk receive() consumer'ı kapatınca kuyruk silinir.
+        Queue queue = new Queue("test." + UUID.randomUUID(), true, false, false);
         admin.declareQueue(queue);
         for (String key : bindingKeys) {
             admin.declareBinding(BindingBuilder.bind(queue).to(new TopicExchange(BackofficeEvents.EXCHANGE)).with(key));

@@ -10,6 +10,18 @@ spring:
     port: 5672
     username: rabbitlab
     password: rabbitlab
+    # Faz 1 M4'ün Spring karşılıkları:
+    publisher-confirm-type: correlated   # broker her mesaj için ack/nack gönderir
+    publisher-returns: true              # yönlendirilemeyen mesaj geri döner...
+    template:
+      mandatory: true                    # ...ve sessizce kaybolmaz
+
+backoffice:
+  outbox:
+    scheduling-enabled: true
+    poll-interval: 500ms
+    batch-size: 100
+    confirm-timeout: 5s
 
 server:
   port: 8081
