@@ -25,7 +25,19 @@ public final class Product extends AggregateRoot {
     private boolean active;
     private long version;
 
+    /** Yeni ürün. */
+    private Product(Sku sku, String name, String description, Price price) {
+        this.sku = Require.notNull(sku, "sku");
+        this.name = Require.notBlank(name, "name");
+        this.description = description;
+        this.price = Require.notNull(price, "price");
+        this.active = true;
+        this.version = 1;
+    }
+
+    /** Kayıtlı ürün. */
     private Product(Sku sku, String name, String description, Price price, boolean active, long version) {
+        super(version);
         this.sku = Require.notNull(sku, "sku");
         this.name = Require.notBlank(name, "name");
         this.description = description;
@@ -35,9 +47,15 @@ public final class Product extends AggregateRoot {
     }
 
     public static Product create(Sku sku, String name, String description, Price price) {
-        Product product = new Product(sku, name, description, price, true, 1);
+        Product product = new Product(sku, name, description, price);
         product.record(new ProductCreated(sku, name, description, price, product.version));
         return product;
+    }
+
+    /** Kayıtlı ürünü geri yükler (repository için). Event üretmez: geçmiş zaten yayınlandı. */
+    public static Product restore(Sku sku, String name, String description, Price price, boolean active,
+                                  long version) {
+        return new Product(sku, name, description, price, active, version);
     }
 
     public void update(String name, String description, Price price) {

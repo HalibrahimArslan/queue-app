@@ -17,7 +17,16 @@ public final class Inventory extends AggregateRoot {
     private int quantity;
     private long version;
 
+    /** Yeni, boş stok. */
+    private Inventory(Sku sku) {
+        this.sku = Require.notNull(sku, "sku");
+        this.quantity = 0;
+        this.version = 0;
+    }
+
+    /** Kayıtlı stok. */
     private Inventory(Sku sku, int quantity, long version) {
+        super(version);
         this.sku = Require.notNull(sku, "sku");
         this.quantity = quantity;
         this.version = version;
@@ -25,7 +34,12 @@ public final class Inventory extends AggregateRoot {
 
     /** Yeni ürün için boş stok. Event yok: Storefront ürünü zaten "Tükendi" olarak oluşturur. */
     public static Inventory open(Sku sku) {
-        return new Inventory(sku, 0, 0);
+        return new Inventory(sku);
+    }
+
+    /** Kayıtlı stoğu geri yükler (repository için). */
+    public static Inventory restore(Sku sku, int quantity, long version) {
+        return new Inventory(sku, quantity, version);
     }
 
     public void count(int quantity) {

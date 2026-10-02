@@ -1,6 +1,7 @@
 package com.rabbitlab.backoffice.adapter.out.persistence;
 
 import com.rabbitlab.backoffice.TestcontainersConfiguration;
+import com.rabbitlab.backoffice.application.DuplicateSkuException;
 import com.rabbitlab.backoffice.application.port.in.CountStockCommand;
 import com.rabbitlab.backoffice.application.port.in.CountStockUseCase;
 import com.rabbitlab.backoffice.application.port.in.CreateProductCommand;
@@ -122,6 +123,16 @@ class ProductPersistenceIT {
                 .isInstanceOf(ConcurrentUpdateException.class)
                 .hasMessageContaining(sku.value());
         assertThat(products.findBySku(sku).orElseThrow().price().amount()).isEqualByComparingTo("120");
+    }
+
+    @Test
+    void should_reject_duplicate_sku_at_database_level() {
+        // Servisteki "var mı?" kontrolünü atlayıp doğrudan repository'ye gidiyoruz: aynı anda gelen
+        // iki isteğin ikisi de kontrolü geçmiş gibi.
+        products.save(Product.create(sku, "Kupa", "Seramik kupa", price));
+
+        assertThatThrownBy(() -> products.save(Product.create(sku, "Başka", null, price)))
+                .isInstanceOf(DuplicateSkuException.class);
     }
 
     private int inventoryQuantity() {
