@@ -1,0 +1,20 @@
+# Sözlük (Ubiquitous Language)
+
+| Türkçe | Kodda | Context | Açıklama |
+|---|---|---|---|
+| Ürün | `Product` | Backoffice | Ürünün asıl kaydı; kurallar burada |
+| Katalog ürünü | `CatalogItem` | Storefront | Vitrindeki kopya |
+| Katalog | `Catalog` | Storefront | Vitrindeki ürünlerin tamamı |
+| Stok kodu | `sku` | İkisi | Ürünün benzersiz kimliği |
+| Stok miktarı | `quantity` / `stock` | İkisi | Negatif olamaz |
+| Fiyat | `price` + `currency` | İkisi | > 0 |
+| Ürün versiyonu | `version` / `detailsVersion` | İkisi | Ürün bilgisi event'lerinde artan sayı |
+| Stok versiyonu | `version` / `stockVersion` | İkisi | `StockUpdated`'de artan sayı |
+| Aktif / Pasif | `active` | İkisi | Pasif ürün satışta görünmez; silme yok |
+| Tükendi | `outOfStock()` | Storefront | Stok 0 |
+| Ürün oluşturuldu | `ProductCreated` | Event | |
+| Ürün güncellendi | `ProductUpdated` | Event | Ad, açıklama, fiyat |
+| Stok güncellendi | `StockUpdated` | Event | Mutlak değer + stok versiyonu |
+| Ürün pasife alındı | `ProductDeactivated` | Event | |
+| Vitrin | Storefront | Context | E-ticaret tarafı |
+| Park kuyruğu | `*.dlq` | Altyapı | İşlenemeyen mesajların bekletildiği yer (Dead Letter Queue) |

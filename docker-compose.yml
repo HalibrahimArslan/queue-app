@@ -1,0 +1,13 @@
+# Elle kurcalamak için yerel RabbitMQ.
+# Yönetim arayüzü: http://localhost:15672  (kullanıcı/şifre: rabbitlab / rabbitlab)
+# Testler bunu KULLANMAZ; testler Testcontainers ile kendi broker'ını açar.
+services:
+  rabbitmq:
+    image: rabbitmq:4.1-management
+    container_name: rabbit-lab
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: rabbitlab
+      RABBITMQ_DEFAULT_PASS: rabbitlab
