@@ -38,7 +38,7 @@ class ProductSyncFlowTest extends RabbitMqTestSupport {
 
     @Test
     void should_show_product_in_catalog_when_backoffice_creates_it() throws Exception {
-        try (StorefrontConsumer consumer = new StorefrontConsumer(connection, queue, catalog);
+        try (StorefrontConsumer consumer = new StorefrontConsumer(connection, queue, catalog::apply);
              BackofficePublisher publisher = new BackofficePublisher(connection, queue)) {
             consumer.start();
 
@@ -55,7 +55,7 @@ class ProductSyncFlowTest extends RabbitMqTestSupport {
 
     @Test
     void should_apply_create_before_update_when_single_consumer_reads_in_fifo_order() throws Exception {
-        try (StorefrontConsumer consumer = new StorefrontConsumer(connection, queue, catalog);
+        try (StorefrontConsumer consumer = new StorefrontConsumer(connection, queue, catalog::apply);
              BackofficePublisher publisher = new BackofficePublisher(connection, queue)) {
             consumer.start();
 
