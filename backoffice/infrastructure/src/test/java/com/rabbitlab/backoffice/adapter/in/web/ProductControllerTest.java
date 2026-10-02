@@ -1,12 +1,10 @@
 package com.rabbitlab.backoffice.adapter.in.web;
 
-import com.rabbitlab.backoffice.application.port.in.CountStockCommand;
-import com.rabbitlab.backoffice.application.port.in.CountStockUseCase;
-import com.rabbitlab.backoffice.application.port.in.CreateProductCommand;
-import com.rabbitlab.backoffice.application.port.in.CreateProductUseCase;
-import com.rabbitlab.backoffice.application.port.in.DeactivateProductUseCase;
-import com.rabbitlab.backoffice.application.port.in.UpdateProductCommand;
-import com.rabbitlab.backoffice.application.port.in.UpdateProductUseCase;
+import com.rabbitlab.backoffice.application.InventoryService;
+import com.rabbitlab.backoffice.application.ProductService;
+import com.rabbitlab.backoffice.application.CountStockCommand;
+import com.rabbitlab.backoffice.application.CreateProductCommand;
+import com.rabbitlab.backoffice.application.UpdateProductCommand;
 import com.rabbitlab.backoffice.domain.Sku;
 import com.rabbitlab.backoffice.domain.product.Price;
 import com.rabbitlab.backoffice.domain.product.ProductInactiveException;
@@ -30,7 +28,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 
 /**
- * P2-M6 — REST inbound adapter. Sadece HTTP ↔ use case çevirisini test ediyoruz; use case'ler sahte.
+ * P2-M6 — REST inbound adapter. Sadece HTTP ↔ application servisi çevirisini test ediyoruz; servisler sahte (Mockito).
  * Controller iş kuralı içermez: JSON'u komuta çevirir, domain hatasını HTTP koduna çevirir.
  */
 @WebMvcTest(ProductController.class)
@@ -42,16 +40,10 @@ class ProductControllerTest {
     MockMvcTester mvc;
 
     @MockitoBean
-    CreateProductUseCase createProduct;
+    ProductService products;
 
     @MockitoBean
-    UpdateProductUseCase updateProduct;
-
-    @MockitoBean
-    DeactivateProductUseCase deactivateProduct;
-
-    @MockitoBean
-    CountStockUseCase countStock;
+    InventoryService inventories;
 
     @Test
     void should_create_product() {
@@ -60,7 +52,7 @@ class ProductControllerTest {
                 .hasStatus(HttpStatus.CREATED)
                 .hasHeader("Location", "/products/SKU-1");
 
-        verify(createProduct).create(new CreateProductCommand(SKU, "Kupa", "Seramik kupa",
+        verify(products).create(new CreateProductCommand(SKU, "Kupa", "Seramik kupa",
                 new Price(new BigDecimal("100"), "TRY")));
     }
 
@@ -71,12 +63,12 @@ class ProductControllerTest {
                 .hasStatus(HttpStatus.BAD_REQUEST)
                 .bodyJson().extractingPath("$.detail").asString().contains("price");
 
-        verifyNoInteractions(createProduct);
+        verifyNoInteractions(products);
     }
 
     @Test
     void should_answer_conflict_for_duplicate_sku() {
-        doThrow(new DuplicateSkuException(SKU)).when(createProduct).create(any());
+        doThrow(new DuplicateSkuException(SKU)).when(products).create(any());
 
         assertThat(mvc.post().uri("/products").contentType(MediaType.APPLICATION_JSON).content("""
                 {"sku": "SKU-1", "name": "Kupa", "price": 100, "currency": "TRY"}"""))
@@ -90,13 +82,13 @@ class ProductControllerTest {
                 {"name": "Kupa", "description": null, "price": 120, "currency": "TRY"}"""))
                 .hasStatus(HttpStatus.NO_CONTENT);
 
-        verify(updateProduct).update(new UpdateProductCommand(SKU, "Kupa", null,
+        verify(products).update(new UpdateProductCommand(SKU, "Kupa", null,
                 new Price(new BigDecimal("120"), "TRY")));
     }
 
     @Test
     void should_answer_not_found_for_unknown_product() {
-        doThrow(new ProductNotFoundException(SKU)).when(updateProduct).update(any());
+        doThrow(new ProductNotFoundException(SKU)).when(products).update(any());
 
         assertThat(mvc.put().uri("/products/SKU-1").contentType(MediaType.APPLICATION_JSON).content("""
                 {"name": "Kupa", "price": 120, "currency": "TRY"}"""))
@@ -105,10 +97,10 @@ class ProductControllerTest {
 
     @Test
     void should_answer_conflict_when_product_is_inactive_or_changed_concurrently() {
-        doThrow(new ProductInactiveException(SKU)).when(deactivateProduct).deactivate(SKU);
+        doThrow(new ProductInactiveException(SKU)).when(products).deactivate(SKU);
         assertThat(mvc.post().uri("/products/SKU-1/deactivate")).hasStatus(HttpStatus.CONFLICT);
 
-        doThrow(new ConcurrentUpdateException("Ürün", "SKU-1", 1)).when(updateProduct).update(any());
+        doThrow(new ConcurrentUpdateException("Ürün", "SKU-1", 1)).when(products).update(any());
         assertThat(mvc.put().uri("/products/SKU-1").contentType(MediaType.APPLICATION_JSON).content("""
                 {"name": "Kupa", "price": 120, "currency": "TRY"}"""))
                 .hasStatus(HttpStatus.CONFLICT);
@@ -118,7 +110,7 @@ class ProductControllerTest {
     void should_deactivate_product() {
         assertThat(mvc.post().uri("/products/SKU-1/deactivate")).hasStatus(HttpStatus.NO_CONTENT);
 
-        verify(deactivateProduct).deactivate(SKU);
+        verify(products).deactivate(SKU);
     }
 
     @Test
@@ -127,6 +119,6 @@ class ProductControllerTest {
                 .content("{\"quantity\": 8}"))
                 .hasStatus(HttpStatus.NO_CONTENT);
 
-        verify(countStock).count(new CountStockCommand(SKU, 8));
+        verify(inventories).count(new CountStockCommand(SKU, 8));
     }
 }

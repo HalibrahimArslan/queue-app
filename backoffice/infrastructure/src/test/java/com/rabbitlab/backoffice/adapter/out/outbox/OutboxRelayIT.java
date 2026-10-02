@@ -1,10 +1,10 @@
 package com.rabbitlab.backoffice.adapter.out.outbox;
 
+import com.rabbitlab.backoffice.application.InventoryService;
+import com.rabbitlab.backoffice.application.ProductService;
 import com.rabbitlab.backoffice.TestcontainersConfiguration;
-import com.rabbitlab.backoffice.application.port.in.CountStockCommand;
-import com.rabbitlab.backoffice.application.port.in.CountStockUseCase;
-import com.rabbitlab.backoffice.application.port.in.CreateProductCommand;
-import com.rabbitlab.backoffice.application.port.in.CreateProductUseCase;
+import com.rabbitlab.backoffice.application.CountStockCommand;
+import com.rabbitlab.backoffice.application.CreateProductCommand;
 import com.rabbitlab.backoffice.domain.Sku;
 import com.rabbitlab.backoffice.domain.product.Price;
 import com.rabbitlab.contract.BackofficeEvents;
@@ -54,10 +54,10 @@ class OutboxRelayIT {
     OutboxRelay relay;
 
     @Autowired
-    CreateProductUseCase createProduct;
+    ProductService productService;
 
     @Autowired
-    CountStockUseCase countStock;
+    InventoryService inventoryService;
 
     @Autowired
     JdbcClient jdbc;
@@ -88,8 +88,8 @@ class OutboxRelayIT {
     void should_publish_pending_messages_and_mark_them_published() {
         Queue queue = listenTo("product.*", "stock.*");
         Sku sku = newSku();
-        createProduct.create(new CreateProductCommand(sku, "Kupa", "Seramik kupa", price));
-        countStock.count(new CountStockCommand(sku, 5));
+        productService.create(new CreateProductCommand(sku, "Kupa", "Seramik kupa", price));
+        inventoryService.count(new CountStockCommand(sku, 5));
 
         int published = relay.relayPending();
 
@@ -110,7 +110,7 @@ class OutboxRelayIT {
     @Test
     void should_not_publish_same_message_twice() {
         Queue queue = listenTo("product.*");
-        createProduct.create(new CreateProductCommand(newSku(), "Kupa", "Seramik kupa", price));
+        productService.create(new CreateProductCommand(newSku(), "Kupa", "Seramik kupa", price));
 
         relay.relayPending();
         int secondRound = relay.relayPending();
@@ -124,7 +124,7 @@ class OutboxRelayIT {
         // Mandatory: hiçbir kuyruğa gitmeyen mesaj "gönderildi" sayılmaz (Faz 1'de exception'dı).
         // Outbox'ta kalır; dinleyici gelince bir sonraki turda gider. Hiçbir mesaj kaybolmaz.
         Sku sku = newSku();
-        createProduct.create(new CreateProductCommand(sku, "Kupa", "Seramik kupa", price));
+        productService.create(new CreateProductCommand(sku, "Kupa", "Seramik kupa", price));
 
         assertThat(relay.relayPending()).isZero();
         assertThat(outboxRow(sku)).satisfies(row -> {
@@ -143,9 +143,9 @@ class OutboxRelayIT {
         // Ortadaki mesaj gidemiyor. Arkasındakiler onu beklemez: sıra garantisine ihtiyacımız yok,
         // çünkü Storefront versiyonla geç gelen mesajı zaten zararsız kılıyor.
         Queue queue = listenTo("product.*");
-        createProduct.create(new CreateProductCommand(newSku(), "Kupa", "Seramik kupa", price));
+        productService.create(new CreateProductCommand(newSku(), "Kupa", "Seramik kupa", price));
         insertRaw("unknown.event");
-        createProduct.create(new CreateProductCommand(newSku(), "Tabak", "Seramik tabak", price));
+        productService.create(new CreateProductCommand(newSku(), "Tabak", "Seramik tabak", price));
 
         assertThat(relay.relayPending()).isEqualTo(2);
         assertThat(unpublishedCount()).isEqualTo(1);
@@ -158,7 +158,7 @@ class OutboxRelayIT {
         // kilitlediyse diğeri onu atlar ve sonrakine geçer.
         Queue queue = listenTo("product.*");
         for (int i = 0; i < 40; i++) {
-            createProduct.create(new CreateProductCommand(newSku(), "Ürün " + i, null, price));
+            productService.create(new CreateProductCommand(newSku(), "Ürün " + i, null, price));
         }
 
         CompletableFuture<Void> first = CompletableFuture.runAsync(this::drain);

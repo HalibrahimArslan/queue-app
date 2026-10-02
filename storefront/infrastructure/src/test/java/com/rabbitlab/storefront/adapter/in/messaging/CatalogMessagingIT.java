@@ -7,7 +7,7 @@ import com.rabbitlab.contract.ProductDeactivatedMessage;
 import com.rabbitlab.contract.ProductUpdatedMessage;
 import com.rabbitlab.contract.StockUpdatedMessage;
 import com.rabbitlab.storefront.TestcontainersConfiguration;
-import com.rabbitlab.storefront.application.port.in.BrowseCatalogUseCase;
+import com.rabbitlab.storefront.application.CatalogService;
 import com.rabbitlab.storefront.domain.CatalogItem;
 import com.rabbitlab.storefront.domain.Sku;
 import org.junit.jupiter.api.Test;
@@ -55,7 +55,7 @@ class CatalogMessagingIT {
     JsonMapper json;
 
     @Autowired
-    BrowseCatalogUseCase catalog;
+    CatalogService catalog;
 
     private final String sku = "SKU-" + UUID.randomUUID().toString().substring(0, 8);
 
@@ -143,6 +143,20 @@ class CatalogMessagingIT {
         await().atMost(TIMEOUT).until(() -> catalog.find(new Sku(marker)).orElseThrow().stock() == 1);
         assertThat(item().stock()).isEqualTo(8);
         assertThat(processedCount(messageId)).isEqualTo(1);
+    }
+
+    @Test
+    void should_park_message_without_id() {
+        // Inbox kimliksiz mesajı ayıklayamaz. Backoffice her mesaja kimlik koyar; kimliksiz mesaj bozuktur.
+        rabbit.send(BackofficeEvents.EXCHANGE, "product.created", MessageBuilder
+                .withBody(json.writeValueAsBytes(created()))
+                .setContentType("application/json")
+                .setType("ProductCreated")
+                .build());
+
+        Message parked = awaitParked("storefront.catalog.dlq");
+        assertThat(parked.getMessageProperties().<String>getHeader("x-error")).contains("kimlik");
+        assertThat(catalog.find(new Sku(sku))).isEmpty();
     }
 
     @Test

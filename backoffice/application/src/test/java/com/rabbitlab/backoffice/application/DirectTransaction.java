@@ -1,6 +1,5 @@
 package com.rabbitlab.backoffice.application;
 
-import com.rabbitlab.backoffice.application.port.out.Transaction;
 
 import java.util.function.Supplier;
 

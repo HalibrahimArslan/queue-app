@@ -5,8 +5,6 @@ import com.tngtech.archunit.junit.AnalyzeClasses;
 import com.tngtech.archunit.junit.ArchTest;
 import com.tngtech.archunit.lang.ArchRule;
 
-import static com.tngtech.archunit.core.domain.JavaClass.Predicates.resideInAPackage;
-import static com.tngtech.archunit.core.domain.JavaClass.Predicates.simpleNameEndingWith;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 import static com.tngtech.archunit.library.dependencies.SlicesRuleDefinition.slices;
 
@@ -36,7 +34,7 @@ class HexagonalArchitectureTest {
             .that().resideInAPackage("..backoffice.application..")
             .should().dependOnClassesThat()
             .resideOutsideOfPackages("..backoffice.application..", "..backoffice.domainservice..", "..backoffice.domain..", "java..")
-            .because("use case'ler framework'süzdür; dış dünyaya sadece port arayüzleriyle dokunur");
+            .because("application servisleri framework'süzdür; altyapıya kendi tanımladığı arayüzlerle dokunur");
 
     @ArchTest
     static final ArchRule domain_services_depend_only_on_model = noClasses()
@@ -57,11 +55,6 @@ class HexagonalArchitectureTest {
             .should().notDependOnEachOther()
             .because("her adapter kendi teknolojisini sarar; birbirleriyle application üzerinden konuşurlar");
 
-    @ArchTest
-    static final ArchRule adapters_use_ports_not_services = noClasses()
-            .that().resideInAPackage("..backoffice.adapter..")
-            .should().dependOnClassesThat(resideInAPackage("..backoffice.application..").and(simpleNameEndingWith("Service")))
-            .because("adapter use case'i somut servis üzerinden değil inbound port üzerinden çağırır");
 
     @ArchTest
     static final ArchRule nothing_depends_on_wiring = noClasses()

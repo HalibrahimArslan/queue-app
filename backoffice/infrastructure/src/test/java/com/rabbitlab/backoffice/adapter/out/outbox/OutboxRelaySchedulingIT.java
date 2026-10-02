@@ -1,8 +1,8 @@
 package com.rabbitlab.backoffice.adapter.out.outbox;
 
+import com.rabbitlab.backoffice.application.ProductService;
 import com.rabbitlab.backoffice.TestcontainersConfiguration;
-import com.rabbitlab.backoffice.application.port.in.CreateProductCommand;
-import com.rabbitlab.backoffice.application.port.in.CreateProductUseCase;
+import com.rabbitlab.backoffice.application.CreateProductCommand;
 import com.rabbitlab.backoffice.domain.Sku;
 import com.rabbitlab.backoffice.domain.product.Price;
 import com.rabbitlab.contract.BackofficeEvents;
@@ -32,7 +32,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class OutboxRelaySchedulingIT {
 
     @Autowired
-    CreateProductUseCase createProduct;
+    ProductService productService;
 
     @Autowired
     AmqpAdmin admin;
@@ -49,7 +49,7 @@ class OutboxRelaySchedulingIT {
         Sku sku = new Sku("SKU-" + UUID.randomUUID().toString().substring(0, 8));
 
         try {
-            createProduct.create(new CreateProductCommand(sku, "Kupa", "Seramik kupa",
+            productService.create(new CreateProductCommand(sku, "Kupa", "Seramik kupa",
                     new Price(new BigDecimal("100"), "TRY")));
 
             Message message = rabbit.receive(queue.getName(), 5_000);

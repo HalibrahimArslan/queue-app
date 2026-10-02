@@ -1,11 +1,11 @@
 package com.rabbitlab.backoffice.adapter.out.persistence;
 
+import com.rabbitlab.backoffice.application.InventoryService;
+import com.rabbitlab.backoffice.application.ProductService;
 import com.rabbitlab.backoffice.TestcontainersConfiguration;
-import com.rabbitlab.backoffice.application.port.in.CountStockCommand;
-import com.rabbitlab.backoffice.application.port.in.CountStockUseCase;
-import com.rabbitlab.backoffice.application.port.in.CreateProductCommand;
-import com.rabbitlab.backoffice.application.port.in.CreateProductUseCase;
-import com.rabbitlab.backoffice.application.port.out.EventOutbox;
+import com.rabbitlab.backoffice.application.CountStockCommand;
+import com.rabbitlab.backoffice.application.CreateProductCommand;
+import com.rabbitlab.backoffice.application.EventOutbox;
 import com.rabbitlab.backoffice.domain.Sku;
 import com.rabbitlab.backoffice.domain.product.Price;
 import com.rabbitlab.backoffice.domain.product.Product;
@@ -44,10 +44,10 @@ import static org.mockito.Mockito.doThrow;
 class ProductPersistenceIT {
 
     @Autowired
-    CreateProductUseCase createProduct;
+    ProductService productService;
 
     @Autowired
-    CountStockUseCase countStock;
+    InventoryService inventoryService;
 
     @Autowired
     ProductRepository products;
@@ -63,7 +63,7 @@ class ProductPersistenceIT {
 
     @Test
     void should_store_product_inventory_and_outbox_message_together() {
-        createProduct.create(new CreateProductCommand(sku, "Kupa", "Seramik kupa", price));
+        productService.create(new CreateProductCommand(sku, "Kupa", "Seramik kupa", price));
 
         Product stored = products.findBySku(sku).orElseThrow();
         assertThat(stored.name()).isEqualTo("Kupa");
@@ -84,9 +84,9 @@ class ProductPersistenceIT {
 
     @Test
     void should_store_stock_count_with_its_own_version() {
-        createProduct.create(new CreateProductCommand(sku, "Kupa", "Seramik kupa", price));
+        productService.create(new CreateProductCommand(sku, "Kupa", "Seramik kupa", price));
 
-        countStock.count(new CountStockCommand(sku, 8));
+        inventoryService.count(new CountStockCommand(sku, 8));
 
         assertThat(inventoryQuantity()).isEqualTo(8);
         assertThat(outboxRows()).extracting(row -> row.get("message_type"))
@@ -98,7 +98,7 @@ class ProductPersistenceIT {
     void should_not_store_product_when_outbox_write_fails() {
         doThrow(new IllegalStateException("outbox yazılamadı")).when(outbox).append(anyList());
 
-        assertThatThrownBy(() -> createProduct.create(new CreateProductCommand(sku, "Kupa", "Seramik kupa", price)))
+        assertThatThrownBy(() -> productService.create(new CreateProductCommand(sku, "Kupa", "Seramik kupa", price)))
                 .hasMessageContaining("outbox yazılamadı");
 
         // Rollback: event yoksa ürün de yok. Storefront'un hiç duymayacağı bir ürün oluşmadı.
@@ -110,7 +110,7 @@ class ProductPersistenceIT {
     @Test
     void should_reject_save_of_stale_copy() {
         // İki ürün yöneticisi aynı ürünü aynı anda açtı (ikisi de v1 gördü).
-        createProduct.create(new CreateProductCommand(sku, "Kupa", "Seramik kupa", price));
+        productService.create(new CreateProductCommand(sku, "Kupa", "Seramik kupa", price));
         Product first = products.findBySku(sku).orElseThrow();
         Product second = products.findBySku(sku).orElseThrow();
 

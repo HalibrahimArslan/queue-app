@@ -1,9 +1,8 @@
 package com.rabbitlab.storefront.adapter.out.persistence;
 
 import com.rabbitlab.storefront.TestcontainersConfiguration;
-import com.rabbitlab.storefront.application.port.in.BrowseCatalogUseCase;
-import com.rabbitlab.storefront.application.port.in.CatalogUpdate;
-import com.rabbitlab.storefront.application.port.in.UpdateCatalogUseCase;
+import com.rabbitlab.storefront.application.CatalogService;
+import com.rabbitlab.storefront.application.CatalogUpdate;
 import com.rabbitlab.storefront.domain.CatalogItem;
 import com.rabbitlab.storefront.domain.Price;
 import com.rabbitlab.storefront.domain.Sku;
@@ -33,15 +32,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 class CatalogPersistenceIT {
 
     @Autowired
-    UpdateCatalogUseCase update;
-
-    @Autowired
-    BrowseCatalogUseCase browse;
+    CatalogService catalog;
 
     @Autowired
     JdbcClient jdbc;
 
     private final Sku sku = new Sku("SKU-" + UUID.randomUUID().toString().substring(0, 8));
+
+    private static String newId() {
+        return UUID.randomUUID().toString();
+    }
 
     private static Price try_(String amount) {
         return new Price(new BigDecimal(amount), "TRY");
@@ -49,8 +49,8 @@ class CatalogPersistenceIT {
 
     @Test
     void should_store_catalog_item_in_database() {
-        update.apply(new CatalogUpdate.NewProduct(sku, "Kupa", "Seramik kupa", try_("100"), 1));
-        update.apply(new CatalogUpdate.StockChanged(sku, 8, 1));
+        catalog.apply(newId(), new CatalogUpdate.NewProduct(sku, "Kupa", "Seramik kupa", try_("100"), 1));
+        catalog.apply(newId(), new CatalogUpdate.StockChanged(sku, 8, 1));
 
         // Doğrudan tabloya bakıyoruz: bilgi gerçekten kalıcı.
         var row = jdbc.sql("select * from catalog_item where sku = ?").param(sku.value()).query().singleRow();
@@ -59,7 +59,7 @@ class CatalogPersistenceIT {
         assertThat(row.get("details_version")).isEqualTo(1L);
         assertThat(row.get("stock_version")).isEqualTo(1L);
 
-        CatalogItem item = browse.find(sku).orElseThrow();
+        CatalogItem item = catalog.find(sku).orElseThrow();
         assertThat(item.price()).isEqualTo(try_("100"));
         assertThat(item.active()).isTrue();
     }
@@ -70,8 +70,8 @@ class CatalogPersistenceIT {
         var command = new CatalogUpdate.NewProduct(sku, "Kupa", "Seramik kupa", try_("100"), 1);
 
         CompletableFuture.allOf(
-                CompletableFuture.runAsync(() -> update.apply(command)),
-                CompletableFuture.runAsync(() -> update.apply(command))).join();
+                CompletableFuture.runAsync(() -> catalog.apply(newId(), command)),
+                CompletableFuture.runAsync(() -> catalog.apply(newId(), command))).join();
 
         assertThat(jdbc.sql("select count(*) from catalog_item where sku = ?").param(sku.value())
                 .query(Integer.class).single()).isEqualTo(1);
@@ -82,7 +82,7 @@ class CatalogPersistenceIT {
         // Katalog kuyruğu ve stok kuyruğu consumer'ları aynı satırı aynı anda güncelliyor.
         // Kilit olmasaydı: ikisi de satırı okur, biri fiyatı biri stoğu değiştirip TÜM satırı yazar;
         // sonra yazan, öncekinin değişikliğini ezer (lost update).
-        update.apply(new CatalogUpdate.NewProduct(sku, "Kupa", "Seramik kupa", try_("100"), 1));
+        catalog.apply(newId(), new CatalogUpdate.NewProduct(sku, "Kupa", "Seramik kupa", try_("100"), 1));
         List<CatalogUpdate> updates = new ArrayList<>();
         for (int v = 1; v <= 20; v++) {
             updates.add(new CatalogUpdate.StockChanged(sku, v * 10, v));
@@ -92,11 +92,11 @@ class CatalogPersistenceIT {
 
         try (ExecutorService pool = Executors.newFixedThreadPool(8)) {
             CompletableFuture.allOf(updates.stream()
-                    .map(u -> CompletableFuture.runAsync(() -> update.apply(u), pool))
+                    .map(u -> CompletableFuture.runAsync(() -> catalog.apply(newId(), u), pool))
                     .toArray(CompletableFuture[]::new)).join();
         }
 
-        CatalogItem item = browse.find(sku).orElseThrow();
+        CatalogItem item = catalog.find(sku).orElseThrow();
         assertThat(item.stock()).isEqualTo(200);
         assertThat(item.stockVersion()).isEqualTo(20);
         assertThat(item.price()).isEqualTo(try_("120"));
@@ -106,11 +106,11 @@ class CatalogPersistenceIT {
     @Test
     void should_list_only_active_items() {
         Sku other = new Sku(sku.value() + "-B");
-        update.apply(new CatalogUpdate.NewProduct(sku, "Kupa", null, try_("100"), 1));
-        update.apply(new CatalogUpdate.NewProduct(other, "Tabak", null, try_("50"), 1));
+        catalog.apply(newId(), new CatalogUpdate.NewProduct(sku, "Kupa", null, try_("100"), 1));
+        catalog.apply(newId(), new CatalogUpdate.NewProduct(other, "Tabak", null, try_("50"), 1));
 
-        update.apply(new CatalogUpdate.Withdrawn(other, 2));
+        catalog.apply(newId(), new CatalogUpdate.Withdrawn(other, 2));
 
-        assertThat(browse.visibleItems()).extracting(CatalogItem::sku).contains(sku).doesNotContain(other);
+        assertThat(catalog.visibleItems()).extracting(CatalogItem::sku).contains(sku).doesNotContain(other);
     }
 }

@@ -1,6 +1,6 @@
 package com.rabbitlab.storefront.adapter.in.web;
 
-import com.rabbitlab.storefront.application.port.in.BrowseCatalogUseCase;
+import com.rabbitlab.storefront.application.CatalogService;
 import com.rabbitlab.storefront.domain.CatalogItem;
 import com.rabbitlab.storefront.domain.Price;
 import com.rabbitlab.storefront.domain.Sku;
@@ -26,7 +26,7 @@ class CatalogControllerTest {
     MockMvcTester mvc;
 
     @MockitoBean
-    BrowseCatalogUseCase catalog;
+    CatalogService catalog;
 
     private static CatalogItem kupa(int stock, boolean active) {
         return CatalogItem.restore(new Sku("SKU-1"), "Kupa", "Seramik kupa", new Price(new BigDecimal("100"), "TRY"),

@@ -1,6 +1,5 @@
 package com.rabbitlab.backoffice.application;
 
-import com.rabbitlab.backoffice.application.port.out.EventOutbox;
 import com.rabbitlab.backoffice.domain.event.DomainEvent;
 
 import java.util.ArrayList;
