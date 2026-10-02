@@ -7,7 +7,8 @@ import java.time.Duration;
 
 /**
  * @param schedulingEnabled relay arka planda kendiliğinden dönsün mü (testlerde elle çağırmak için kapatılır)
- * @param pollInterval      iki relay turu arasındaki bekleme
+ * @param pollInterval      yedek polling aralığı; asıl tetik NOTIFY (P4-M1)
+ * @param notifyEnabled     outbox'a satır eklenince relay anında uyansın mı (LISTEN/NOTIFY)
  * @param batchSize         bir turda en fazla kaç mesaj
  * @param confirmTimeout    broker onayını en fazla ne kadar bekleyelim
  * @param cleanupEnabled    yayınlanmış satırların temizliği açık mı
@@ -17,7 +18,8 @@ import java.time.Duration;
 @ConfigurationProperties("backoffice.outbox")
 public record OutboxProperties(
         @DefaultValue("true") boolean schedulingEnabled,
-        @DefaultValue("500ms") Duration pollInterval,
+        @DefaultValue("5s") Duration pollInterval,
+        @DefaultValue("true") boolean notifyEnabled,
         @DefaultValue("100") int batchSize,
         @DefaultValue("5s") Duration confirmTimeout,
         @DefaultValue("true") boolean cleanupEnabled,
