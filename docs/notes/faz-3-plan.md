@@ -5,6 +5,8 @@ Onion'ın araçlarıyla çözüyoruz. Çalışma şekli aynı: `test:` (kırmız
 Saf yeniden yapılandırma olan milestone'larda `refactor:` commit'i var; davranış değişmediği için kırmızı aşaması yok,
 güvencemiz mevcut testlerin yeşil kalması.
 
+**Durum:** M0–M5 tamamlandı. İnceleme için: [faz-3-inceleme.md](faz-3-inceleme.md)
+
 ## Onion ile Hexagonal arasındaki fark
 ```
           Hexagonal (Faz 2)                                 Onion (Faz 3)
