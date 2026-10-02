@@ -26,6 +26,9 @@ backoffice:
     poll-interval: 500ms
     batch-size: 100
     confirm-timeout: 5s
+    cleanup-enabled: true
+    cleanup-interval: 1h
+    retention: 7d       # yayınlanmış satır bu süreden sonra silinir
 
 server:
   port: 8081

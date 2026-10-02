@@ -26,6 +26,10 @@ storefront:
   messaging:
     retry-delay: 5s   # bekleme odasında kalma süresi (TTL)
     max-attempts: 3   # geçici hatada en fazla kaç deneme, sonra park
+  inbox:
+    cleanup-enabled: true
+    cleanup-interval: 1h
+    retention: 7d     # işlenmiş kimlik bu süreden sonra unutulur
 
 server:
   port: 8082
