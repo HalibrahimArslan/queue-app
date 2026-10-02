@@ -5,6 +5,8 @@ import com.rabbitlab.backoffice.application.port.in.CountStockUseCase;
 import com.rabbitlab.backoffice.domain.Sku;
 import com.rabbitlab.backoffice.domain.event.StockUpdated;
 import com.rabbitlab.backoffice.domain.inventory.Inventory;
+import com.rabbitlab.backoffice.domainservice.InMemoryInventoryRepository;
+import com.rabbitlab.backoffice.domainservice.ProductNotFoundException;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;

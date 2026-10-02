@@ -121,13 +121,13 @@ class CatalogItemTest {
 
     @Test
     void should_reject_negative_stock() {
-        assertThatThrownBy(() -> kupa().changeStock(-5, 1)).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> kupa().changeStock(-5, 1)).isInstanceOf(InvalidValueException.class);
     }
 
     @Test
     void should_reject_non_positive_price_and_version() {
-        assertThatThrownBy(() -> try_("0")).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> try_("0")).isInstanceOf(InvalidValueException.class);
         assertThatThrownBy(() -> CatalogItem.register(SKU, "Kupa", null, try_("1"), 0))
-                .isInstanceOf(IllegalArgumentException.class);
+                .isInstanceOf(InvalidValueException.class);
     }
 }

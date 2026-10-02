@@ -35,12 +35,19 @@ class HexagonalArchitectureTest {
     static final ArchRule application_depends_only_on_domain = noClasses()
             .that().resideInAPackage("..storefront.application..")
             .should().dependOnClassesThat()
-            .resideOutsideOfPackages("..storefront.application..", "..storefront.domain..", "java..")
+            .resideOutsideOfPackages("..storefront.application..", "..storefront.domainservice..", "..storefront.domain..", "java..")
             .because("use case'ler framework'süzdür; dış dünyaya sadece port arayüzleriyle dokunur");
 
     @ArchTest
+    static final ArchRule domain_services_depend_only_on_model = noClasses()
+            .that().resideInAPackage("..storefront.domainservice..")
+            .should().dependOnClassesThat()
+            .resideOutsideOfPackages("..storefront.domainservice..", "..storefront.domain..", "java..")
+            .because("domain servisleri halkası sadece domain modelini bilir (P3-M1)");
+
+    @ArchTest
     static final ArchRule message_contract_stays_in_adapters = noClasses()
-            .that().resideInAnyPackage("..storefront.domain..", "..storefront.application..")
+            .that().resideInAnyPackage("..storefront.domain..", "..storefront.domainservice..", "..storefront.application..")
             .should().dependOnClassesThat().resideInAPackage("com.rabbitlab.contract..")
             .because("mesaj sözleşmesi kablonun formatıdır; içeriye çevrilerek girer (Faz 1 acıtan nokta 4)");
 

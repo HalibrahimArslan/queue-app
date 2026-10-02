@@ -1,6 +1,5 @@
-package com.rabbitlab.backoffice.application;
+package com.rabbitlab.backoffice.domainservice;
 
-import com.rabbitlab.backoffice.application.port.out.ProductRepository;
 import com.rabbitlab.backoffice.domain.Sku;
 import com.rabbitlab.backoffice.domain.product.Product;
 
@@ -9,12 +8,12 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * Port'un sahte (fake) uygulaması. Application katmanını veritabanı olmadan test edebiliyoruz:
- * hexagonal mimarinin en somut faydası.
+ * Repository'nin sahte (fake) uygulaması. Domain servislerini ve application servislerini veritabanı
+ * olmadan test etmek için. Bu modülün test-jar'ı ile application modülünün testleri de kullanır.
  */
-class InMemoryProductRepository implements ProductRepository {
+public class InMemoryProductRepository implements ProductRepository {
 
-    final Map<Sku, Product> saved = new HashMap<>();
+    public final Map<Sku, Product> saved = new HashMap<>();
 
     @Override
     public Optional<Product> findBySku(Sku sku) {

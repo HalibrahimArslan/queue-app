@@ -1,7 +1,5 @@
 package com.rabbitlab.backoffice.adapter.in.web;
 
-import com.rabbitlab.backoffice.application.DuplicateSkuException;
-import com.rabbitlab.backoffice.application.ProductNotFoundException;
 import com.rabbitlab.backoffice.application.port.in.CountStockCommand;
 import com.rabbitlab.backoffice.application.port.in.CountStockUseCase;
 import com.rabbitlab.backoffice.application.port.in.CreateProductCommand;
@@ -9,10 +7,12 @@ import com.rabbitlab.backoffice.application.port.in.CreateProductUseCase;
 import com.rabbitlab.backoffice.application.port.in.DeactivateProductUseCase;
 import com.rabbitlab.backoffice.application.port.in.UpdateProductCommand;
 import com.rabbitlab.backoffice.application.port.in.UpdateProductUseCase;
-import com.rabbitlab.backoffice.application.port.out.ConcurrentUpdateException;
 import com.rabbitlab.backoffice.domain.Sku;
 import com.rabbitlab.backoffice.domain.product.Price;
 import com.rabbitlab.backoffice.domain.product.ProductInactiveException;
+import com.rabbitlab.backoffice.domainservice.ConcurrentUpdateException;
+import com.rabbitlab.backoffice.domainservice.DuplicateSkuException;
+import com.rabbitlab.backoffice.domainservice.ProductNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;

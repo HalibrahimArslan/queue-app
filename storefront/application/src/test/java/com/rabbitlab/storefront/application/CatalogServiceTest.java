@@ -6,6 +6,7 @@ import com.rabbitlab.storefront.application.port.in.UpdateCatalogUseCase;
 import com.rabbitlab.storefront.application.port.out.Transaction;
 import com.rabbitlab.storefront.domain.Price;
 import com.rabbitlab.storefront.domain.Sku;
+import com.rabbitlab.storefront.domainservice.UnknownProductException;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;

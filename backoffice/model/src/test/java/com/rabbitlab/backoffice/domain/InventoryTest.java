@@ -58,7 +58,7 @@ class InventoryTest {
         Inventory inventory = Inventory.open(SKU);
 
         assertThatThrownBy(() -> inventory.count(-5))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(InvalidValueException.class)
                 .hasMessageContaining("-5");
         assertThat(inventory.pullEvents()).isEmpty();
     }

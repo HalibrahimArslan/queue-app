@@ -1,17 +1,17 @@
 package com.rabbitlab.backoffice.adapter.out.persistence;
 
 import com.rabbitlab.backoffice.TestcontainersConfiguration;
-import com.rabbitlab.backoffice.application.DuplicateSkuException;
 import com.rabbitlab.backoffice.application.port.in.CountStockCommand;
 import com.rabbitlab.backoffice.application.port.in.CountStockUseCase;
 import com.rabbitlab.backoffice.application.port.in.CreateProductCommand;
 import com.rabbitlab.backoffice.application.port.in.CreateProductUseCase;
-import com.rabbitlab.backoffice.application.port.out.ConcurrentUpdateException;
 import com.rabbitlab.backoffice.application.port.out.EventOutbox;
-import com.rabbitlab.backoffice.application.port.out.ProductRepository;
 import com.rabbitlab.backoffice.domain.Sku;
 import com.rabbitlab.backoffice.domain.product.Price;
 import com.rabbitlab.backoffice.domain.product.Product;
+import com.rabbitlab.backoffice.domainservice.ConcurrentUpdateException;
+import com.rabbitlab.backoffice.domainservice.DuplicateSkuException;
+import com.rabbitlab.backoffice.domainservice.ProductRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

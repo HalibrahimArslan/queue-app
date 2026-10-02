@@ -104,23 +104,24 @@ class ProductTest {
 
         assertThatThrownBy(() -> product.update("Kupa", "Seramik kupa", try_("90")))
                 .isInstanceOf(ProductInactiveException.class)
+                .isInstanceOf(RuleViolationException.class) // REST bunu 409'a çevirir
                 .hasMessageContaining("SKU-1");
     }
 
     @Test
     void should_require_name() {
         assertThatThrownBy(() -> Product.create(SKU, " ", "Seramik kupa", try_("100")))
-                .isInstanceOf(IllegalArgumentException.class);
+                .isInstanceOf(InvalidValueException.class);
     }
 
     @Test
     void should_require_positive_price() {
-        assertThatThrownBy(() -> try_("0")).isInstanceOf(IllegalArgumentException.class);
-        assertThatThrownBy(() -> try_("-1")).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> try_("0")).isInstanceOf(InvalidValueException.class);
+        assertThatThrownBy(() -> try_("-1")).isInstanceOf(InvalidValueException.class);
     }
 
     @Test
     void should_require_sku() {
-        assertThatThrownBy(() -> new Sku("")).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> new Sku("")).isInstanceOf(InvalidValueException.class);
     }
 }

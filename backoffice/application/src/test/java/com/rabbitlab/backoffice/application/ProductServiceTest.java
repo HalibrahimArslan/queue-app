@@ -10,6 +10,11 @@ import com.rabbitlab.backoffice.domain.event.ProductCreated;
 import com.rabbitlab.backoffice.domain.event.ProductDeactivated;
 import com.rabbitlab.backoffice.domain.event.ProductUpdated;
 import com.rabbitlab.backoffice.domain.product.Price;
+import com.rabbitlab.backoffice.domainservice.DuplicateSkuException;
+import com.rabbitlab.backoffice.domainservice.InMemoryInventoryRepository;
+import com.rabbitlab.backoffice.domainservice.InMemoryProductRepository;
+import com.rabbitlab.backoffice.domainservice.ProductNotFoundException;
+import com.rabbitlab.backoffice.domainservice.ProductRegistration;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
@@ -29,7 +34,8 @@ class ProductServiceTest {
     private final InMemoryProductRepository products = new InMemoryProductRepository();
     private final InMemoryInventoryRepository inventories = new InMemoryInventoryRepository();
     private final RecordingOutbox outbox = new RecordingOutbox();
-    private final ProductService service = new ProductService(products, inventories, outbox, new DirectTransaction());
+    private final ProductService service = new ProductService(new ProductRegistration(products), products, inventories, outbox,
+            new DirectTransaction());
 
     private final CreateProductUseCase create = service;
     private final UpdateProductUseCase update = service;
