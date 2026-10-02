@@ -7,12 +7,13 @@ RabbitMQ, DDD, Hexagonal ve Onion mimarisini TDD ile öğrenme projesi.
 |---|---|
 | `main` | Senaryo, sözlük, docker-compose |
 | `phase-1-basics` | Faz 1 — saf `amqp-client` ile RabbitMQ temelleri |
-| `phase-2-hexagonal` | Faz 2 — DDD + Hexagonal, Spring Boot, PostgreSQL, Outbox (devam ediyor) |
+| `phase-2-hexagonal` | Faz 2 — DDD + Hexagonal, Spring Boot, PostgreSQL, Outbox, Cucumber |
 | `phase-3-onion` | Faz 3 — Onion (yakında) |
 
 - Senaryo: [docs/scenario.md](docs/scenario.md)
 - Sözlük: [docs/glossary.md](docs/glossary.md)
 - Faz 2 planı: [docs/notes/faz-2-plan.md](docs/notes/faz-2-plan.md)
+- Faz 2 inceleme rehberi: [docs/notes/faz-2-inceleme.md](docs/notes/faz-2-inceleme.md)
 
 ## Gereksinimler
 - Java 21

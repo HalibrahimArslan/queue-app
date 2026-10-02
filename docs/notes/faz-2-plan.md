@@ -3,6 +3,8 @@
 Faz 1'in "acıtan noktaları"nı ([faz-1-inceleme.md](faz-1-inceleme.md)) sırayla çözüyoruz.
 Çalışma şekli aynı: her milestone önce `test:` (kırmızı), sonra `feat:` (yeşil) commit'i; sonunda `p2-mN` tag'i.
 
+**Durum:** M0–M7 tamamlandı. İnceleme için: [faz-2-inceleme.md](faz-2-inceleme.md)
+
 ## Kararlar
 | Karar | Seçim | Gerekçe |
 |---|---|---|
