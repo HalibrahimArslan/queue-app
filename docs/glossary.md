@@ -2,7 +2,9 @@
 
 | Türkçe | Kodda | Context | Açıklama |
 |---|---|---|---|
-| Ürün | `Product` | Backoffice | Ürünün asıl kaydı; kurallar burada |
+| Ürün | `Product` | Backoffice | Ürün bilgisinin (ad, açıklama, fiyat, aktiflik) asıl kaydı; aggregate |
+| Stok | `Inventory` | Backoffice | Bir SKU'nun depodaki miktarı; ayrı aggregate, kendi versiyonu |
+| Stok sayımı | `Inventory.count()` | Backoffice | Depo görevlisinin girdiği mutlak miktar |
 | Katalog ürünü | `CatalogItem` | Storefront | Vitrindeki kopya |
 | Katalog | `Catalog` | Storefront | Vitrindeki ürünlerin tamamı |
 | Stok kodu | `sku` | İkisi | Ürünün benzersiz kimliği |
