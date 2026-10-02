@@ -78,5 +78,6 @@ Depo görevlisi olarak, saydığım stoğun e-ticarette doğru görünmesini ist
 | Faz 2 | Backoffice: `Product` aggregate + outbox; Storefront: `CatalogItem` + idempotent consumer; US1-US5 → Cucumber |
 | Faz 3 | Aynı davranış Onion katmanlarıyla |
 
-## Faz 2 için açık soru
+## Faz 2 için açık soru (cevaplandı)
 - Stok, `Product` aggregate'inin içinde mi olmalı yoksa ayrı bir `Inventory` aggregate'i mi? (İki ayrı versiyon sayacı bu sorunun ilk ipucu.)
+- **Karar:** Ayrı `Inventory` aggregate'i. Farklı aktörler değiştirir, versiyon sayaçları ayrı, fiyat güncellemesi ile stok sayımı birbirini kilitlemez.

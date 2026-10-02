@@ -1,6 +1,6 @@
-# Elle kurcalamak için yerel RabbitMQ.
-# Yönetim arayüzü: http://localhost:15672  (kullanıcı/şifre: rabbitlab / rabbitlab)
-# Testler bunu KULLANMAZ; testler Testcontainers ile kendi broker'ını açar.
+# Uygulamaları elle çalıştırmak için yerel altyapı.
+# RabbitMQ yönetim arayüzü: http://localhost:15672  (kullanıcı/şifre: rabbitlab / rabbitlab)
+# Testler bunu KULLANMAZ; testler Testcontainers ile kendi container'larını açar.
 services:
   rabbitmq:
     image: rabbitmq:4.1-management
@@ -11,3 +11,16 @@ services:
     environment:
       RABBITMQ_DEFAULT_USER: rabbitlab
       RABBITMQ_DEFAULT_PASS: rabbitlab
+
+  # Tek PostgreSQL sunucusu, iki ayrı veritabanı: backoffice ve storefront.
+  postgres:
+    image: postgres:17-alpine
+    container_name: rabbit-lab-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: rabbitlab
+      POSTGRES_PASSWORD: rabbitlab
+      POSTGRES_DB: backoffice
+    volumes:
+      - ./docker/postgres-init.sql:/docker-entrypoint-initdb.d/init.sql:ro
