@@ -25,10 +25,30 @@ RabbitMQ, DDD, Hexagonal ve Onion mimarisini TDD ile öğrenme projesi.
 | `contract` | Backoffice → Storefront mesaj sözleşmesi (bağımlılıksız) |
 | `backoffice` | Ürün ve stoğun asıl kaydı; outbox ile yayın (port 8081) |
 | `storefront` | Vitrin; event'leri tüketip kalıcı kataloğa uygular (port 8082) |
+| `acceptance` | US1–US5 Cucumber senaryoları; iki uygulama birlikte, uçtan uca |
 
 ## Yerel altyapı
 ```bash
 docker compose up -d
 # RabbitMQ: http://localhost:15672  rabbitlab / rabbitlab
 # PostgreSQL: localhost:5432  rabbitlab / rabbitlab  (veritabanları: backoffice, storefront)
+```
+
+## Testler
+```bash
+./mvnw verify
+# Kabul testi raporu: acceptance/target/cucumber-report.html
+```
+
+## Uygulamaları çalıştırmak
+```bash
+docker compose up -d
+./mvnw -q package -DskipTests
+java -jar backoffice/target/backoffice-0.2.0-SNAPSHOT-exec.jar &
+java -jar storefront/target/storefront-0.2.0-SNAPSHOT-exec.jar &
+
+curl -X POST localhost:8081/products -H 'Content-Type: application/json' \
+     -d '{"sku":"SKU-1","name":"Kupa","description":"Seramik kupa","price":100,"currency":"TRY"}'
+curl -X PUT localhost:8081/products/SKU-1/stock -H 'Content-Type: application/json' -d '{"quantity":8}'
+curl localhost:8082/catalog
 ```

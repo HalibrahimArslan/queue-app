@@ -84,6 +84,11 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <!-- Çalıştırılabilir jar ayrı dosya (*-exec.jar); asıl jar düz kalır ki
+                         acceptance modülü ona bağımlı olabilsin. -->
+                    <classifier>exec</classifier>
+                </configuration>
             </plugin>
             <!-- *IT sınıfları (entegrasyon testleri) verify fazında failsafe ile koşar. -->
             <plugin>

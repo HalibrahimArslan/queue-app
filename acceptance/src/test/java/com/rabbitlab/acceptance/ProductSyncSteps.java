@@ -208,7 +208,7 @@ public class ProductSyncSteps {
         }
     }
 
-    private static int messageCount(String queue) {
+    private static long messageCount(String queue) {
         return SystemUnderTest.rabbitAdmin().getQueueInfo(queue).getMessageCount();
     }
 

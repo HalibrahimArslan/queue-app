@@ -1,6 +1,10 @@
+# Storefront ayarları. Dosya adı application.yml DEĞİL: kabul testlerinde iki uygulama aynı
+# classpath'i paylaşıyor; iki application.yml çakışırdı. main() spring.config.name=storefront ile bu dosyayı seçer.
 spring:
   application:
     name: storefront
+  flyway:
+    locations: classpath:db/storefront/migration   # aynı sebeple: migration klasörleri de ayrı
   datasource:
     url: jdbc:postgresql://localhost:5432/storefront
     username: rabbitlab
