@@ -26,10 +26,12 @@
         <module>contract</module>
         <module>backoffice</module>
         <module>storefront</module>
+        <module>acceptance</module>
     </modules>
 
     <properties>
         <java.version>21</java.version>
+        <cucumber.version>7.34.9</cucumber.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
@@ -39,6 +41,23 @@
                 <groupId>com.rabbitlab</groupId>
                 <artifactId>contract</artifactId>
                 <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.rabbitlab</groupId>
+                <artifactId>backoffice</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.rabbitlab</groupId>
+                <artifactId>storefront</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.cucumber</groupId>
+                <artifactId>cucumber-bom</artifactId>
+                <version>${cucumber.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
