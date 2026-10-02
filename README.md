@@ -7,19 +7,28 @@ RabbitMQ, DDD, Hexagonal ve Onion mimarisini TDD ile öğrenme projesi.
 |---|---|
 | `main` | Senaryo, sözlük, docker-compose |
 | `phase-1-basics` | Faz 1 — saf `amqp-client` ile RabbitMQ temelleri |
-| `phase-2-hexagonal` | Faz 2 — DDD + Hexagonal (yakında) |
+| `phase-2-hexagonal` | Faz 2 — DDD + Hexagonal, Spring Boot, PostgreSQL, Outbox (devam ediyor) |
 | `phase-3-onion` | Faz 3 — Onion (yakında) |
 
 - Senaryo: [docs/scenario.md](docs/scenario.md)
 - Sözlük: [docs/glossary.md](docs/glossary.md)
+- Faz 2 planı: [docs/notes/faz-2-plan.md](docs/notes/faz-2-plan.md)
 
 ## Gereksinimler
 - Java 21
-- Docker (OrbStack) — testler Testcontainers ile gerçek RabbitMQ'ya karşı koşar
-- Maven (IntelliJ'nin gömülü Maven'ı yeterli)
+- Docker (OrbStack) — testler Testcontainers ile gerçek RabbitMQ ve PostgreSQL'e karşı koşar
+- Maven kurulu olmak zorunda değil: `./mvnw verify`
 
-## Yerel RabbitMQ
+## Modüller
+| Modül | İçerik |
+|---|---|
+| `contract` | Backoffice → Storefront mesaj sözleşmesi (bağımlılıksız) |
+| `backoffice` | Ürün ve stoğun asıl kaydı; outbox ile yayın (port 8081) |
+| `storefront` | Vitrin; event'leri tüketip kalıcı kataloğa uygular (port 8082) |
+
+## Yerel altyapı
 ```bash
 docker compose up -d
-# http://localhost:15672  rabbitlab / rabbitlab
+# RabbitMQ: http://localhost:15672  rabbitlab / rabbitlab
+# PostgreSQL: localhost:5432  rabbitlab / rabbitlab  (veritabanları: backoffice, storefront)
 ```

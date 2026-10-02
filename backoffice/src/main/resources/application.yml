@@ -1,0 +1,15 @@
+spring:
+  application:
+    name: backoffice
+  datasource:
+    url: jdbc:postgresql://localhost:5432/backoffice
+    username: rabbitlab
+    password: rabbitlab
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: rabbitlab
+    password: rabbitlab
+
+server:
+  port: 8081
