@@ -2,8 +2,8 @@ package com.rabbitlab.backoffice.config;
 
 import com.rabbitlab.backoffice.application.InventoryService;
 import com.rabbitlab.backoffice.application.ProductService;
-import com.rabbitlab.backoffice.application.port.out.EventOutbox;
-import com.rabbitlab.backoffice.application.port.out.Transaction;
+import com.rabbitlab.backoffice.application.EventOutbox;
+import com.rabbitlab.backoffice.application.Transaction;
 import com.rabbitlab.backoffice.domainservice.InventoryRepository;
 import com.rabbitlab.backoffice.domainservice.ProductRegistration;
 import com.rabbitlab.backoffice.domainservice.ProductRepository;

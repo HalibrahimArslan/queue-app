@@ -155,7 +155,7 @@ class CatalogMessagingIT {
                 .build());
 
         Message parked = awaitParked("storefront.catalog.dlq");
-        assertThat(parked.getMessageProperties().<String>getHeader("x-error")).contains("kimlik");
+        assertThat(parked.getMessageProperties().<String>getHeader("x-error")).contains("message-id");
         assertThat(catalog.find(new Sku(sku))).isEmpty();
     }
 

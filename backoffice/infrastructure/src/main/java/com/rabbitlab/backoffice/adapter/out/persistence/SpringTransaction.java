@@ -1,6 +1,6 @@
 package com.rabbitlab.backoffice.adapter.out.persistence;
 
-import com.rabbitlab.backoffice.application.port.out.Transaction;
+import com.rabbitlab.backoffice.application.Transaction;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.support.TransactionTemplate;
 

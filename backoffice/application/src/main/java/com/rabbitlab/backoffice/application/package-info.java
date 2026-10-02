@@ -1,10 +1,9 @@
 /**
  * Use case'ler: "Backoffice ne yapabilir?" sorusunun cevabı.
  *
- * <ul>
- *   <li>{@code port.in}: dış dünyanın uygulamayı çağırdığı arayüzler (REST, test, CLI...).</li>
- *   <li>{@code port.out}: uygulamanın dış dünyadan istedikleri (outbox'a yaz, transaction aç). Repository'ler artık domain servisleri halkasında (P3-M1).</li>
- * </ul>
- * Bu paket de framework bilmez. Port'ların uygulamaları {@code adapter} paketinde.
+ * <p>Onion'ın üçüncü halkası. Dış halka (web) servisleri doğrudan çağırır; Faz 2'deki inbound port
+ * arayüzleri yok (P3-M2). Bu halkanın altyapıdan istedikleri ({@link EventOutbox}, {@link Transaction})
+ * burada arayüz olarak tanımlı, uygulamaları en dış halkada. Repository'ler domain servisleri halkasında.
+ * Bu paket framework bilmez.
  */
 package com.rabbitlab.backoffice.application;

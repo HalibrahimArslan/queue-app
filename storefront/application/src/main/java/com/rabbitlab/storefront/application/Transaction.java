@@ -1,4 +1,4 @@
-package com.rabbitlab.storefront.application.port.out;
+package com.rabbitlab.storefront.application;
 
 import java.util.function.Supplier;
 

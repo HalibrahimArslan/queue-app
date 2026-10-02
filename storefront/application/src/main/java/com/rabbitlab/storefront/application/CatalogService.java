@@ -1,12 +1,10 @@
 package com.rabbitlab.storefront.application;
 
-import com.rabbitlab.storefront.application.port.in.BrowseCatalogUseCase;
-import com.rabbitlab.storefront.application.port.in.CatalogUpdate;
-import com.rabbitlab.storefront.application.port.in.UpdateCatalogUseCase;
-import com.rabbitlab.storefront.application.port.out.Transaction;
 import com.rabbitlab.storefront.domain.CatalogItem;
+import com.rabbitlab.storefront.domain.InvalidValueException;
 import com.rabbitlab.storefront.domain.Sku;
 import com.rabbitlab.storefront.domainservice.CatalogRepository;
+import com.rabbitlab.storefront.domainservice.UnknownProductException;
 
 import java.util.List;
 import java.util.Optional;
@@ -18,19 +16,34 @@ import java.util.Optional;
  * kullanıcıya "tekrar dene" denir. Burada ise katalog ve stok consumer'ları AYNI satıra sürekli yazıyor;
  * çakışma olağan. Hata verip mesajı tekrar kuyruğa atmak yerine kısa süre sırada beklemek daha ucuz.
  */
-public final class CatalogService implements UpdateCatalogUseCase, BrowseCatalogUseCase {
+public final class CatalogService {
 
     private final CatalogRepository repository;
+    private final ProcessedUpdates processed;
     private final Transaction transaction;
 
-    public CatalogService(CatalogRepository repository, Transaction transaction) {
+    public CatalogService(CatalogRepository repository, ProcessedUpdates processed, Transaction transaction) {
         this.repository = repository;
+        this.processed = processed;
         this.transaction = transaction;
     }
 
-    @Override
-    public void apply(CatalogUpdate update) {
+    /**
+     * Backoffice'ten gelen bir değişikliği kataloğa uygular. Aynı kimlikli değişiklik ikinci kez gelirse
+     * hiçbir şey yapmaz. Kimlik kaydı ve güncelleme tek transaction: biri olmazsa hiçbiri olmaz.
+     *
+     * @param updateId değişikliğin kimliği (Backoffice outbox'ındaki message_id)
+     * @throws UnknownProductException ürün katalogda yoksa (tekrar denenebilir)
+     * @throws InvalidValueException kimlik yoksa veya değişiklik kurallara aykırıysa (tekrar denemek işe yaramaz)
+     */
+    public void apply(String updateId, CatalogUpdate update) {
+        if (updateId == null || updateId.isBlank()) {
+            throw new InvalidValueException("Değişiklik kimliği (message-id) boş olamaz: " + update);
+        }
         transaction.execute(() -> {
+            if (!processed.markProcessed(updateId)) {
+                return; // daha önce işlendi
+            }
             switch (update) {
                 case CatalogUpdate.NewProduct p -> repository.insertIfAbsent(
                         CatalogItem.register(p.sku(), p.name(), p.description(), p.price(), p.version()));
@@ -49,12 +62,10 @@ public final class CatalogService implements UpdateCatalogUseCase, BrowseCatalog
         }
     }
 
-    @Override
     public Optional<CatalogItem> find(Sku sku) {
         return repository.find(sku);
     }
 
-    @Override
     public List<CatalogItem> visibleItems() {
         return repository.findVisible();
     }

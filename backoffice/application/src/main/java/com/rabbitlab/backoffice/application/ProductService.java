@@ -1,12 +1,5 @@
 package com.rabbitlab.backoffice.application;
 
-import com.rabbitlab.backoffice.application.port.in.CreateProductCommand;
-import com.rabbitlab.backoffice.application.port.in.CreateProductUseCase;
-import com.rabbitlab.backoffice.application.port.in.DeactivateProductUseCase;
-import com.rabbitlab.backoffice.application.port.in.UpdateProductCommand;
-import com.rabbitlab.backoffice.application.port.in.UpdateProductUseCase;
-import com.rabbitlab.backoffice.application.port.out.EventOutbox;
-import com.rabbitlab.backoffice.application.port.out.Transaction;
 import com.rabbitlab.backoffice.domain.Sku;
 import com.rabbitlab.backoffice.domain.product.Product;
 import com.rabbitlab.backoffice.domainservice.InventoryRepository;
@@ -16,8 +9,12 @@ import com.rabbitlab.backoffice.domainservice.ProductRepository;
 /**
  * Ürün use case'leri. Her metot aynı kalıbı izler: yükle → domain'e sor → kaydet → event'leri outbox'a yaz.
  * Kurallar domain'de (model ve domain servisleri); servis sadece akışı yönetir (orkestrasyon).
+ *
+ * <p>Inbound port arayüzü yok: REST controller bu sınıfı doğrudan çağırır. Faz 2'de her use case için
+ * bir arayüz vardı ve her birinin tek bir uygulaması vardı; soyutlama hiçbir şeyi değiştirilebilir
+ * kılmıyordu (acıtan nokta 1). Test için sahte servis gerekirse Mockito somut sınıfı da taklit eder.
  */
-public final class ProductService implements CreateProductUseCase, UpdateProductUseCase, DeactivateProductUseCase {
+public final class ProductService {
 
     private final ProductRegistration registration;
     private final ProductRepository products;
@@ -34,7 +31,6 @@ public final class ProductService implements CreateProductUseCase, UpdateProduct
         this.transaction = transaction;
     }
 
-    @Override
     public void create(CreateProductCommand command) {
         transaction.execute(() -> {
             ProductRegistration.Registered registered = registration.register(
@@ -45,7 +41,6 @@ public final class ProductService implements CreateProductUseCase, UpdateProduct
         });
     }
 
-    @Override
     public void update(UpdateProductCommand command) {
         transaction.execute(() -> {
             Product product = products.get(command.sku());
@@ -54,7 +49,6 @@ public final class ProductService implements CreateProductUseCase, UpdateProduct
         });
     }
 
-    @Override
     public void deactivate(Sku sku) {
         transaction.execute(() -> {
             Product product = products.get(sku);

@@ -1,6 +1,6 @@
 package com.rabbitlab.storefront.adapter.in.web;
 
-import com.rabbitlab.storefront.application.port.in.BrowseCatalogUseCase;
+import com.rabbitlab.storefront.application.CatalogService;
 import com.rabbitlab.storefront.domain.CatalogItem;
 import com.rabbitlab.storefront.domain.Sku;
 import org.springframework.http.ResponseEntity;
@@ -20,9 +20,9 @@ import java.util.List;
 @RequestMapping("/catalog")
 class CatalogController {
 
-    private final BrowseCatalogUseCase catalog;
+    private final CatalogService catalog;
 
-    CatalogController(BrowseCatalogUseCase catalog) {
+    CatalogController(CatalogService catalog) {
         this.catalog = catalog;
     }
 

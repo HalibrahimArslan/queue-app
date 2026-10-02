@@ -6,7 +6,7 @@ import com.rabbitlab.contract.ProductCreatedMessage;
 import com.rabbitlab.contract.ProductDeactivatedMessage;
 import com.rabbitlab.contract.ProductUpdatedMessage;
 import com.rabbitlab.contract.StockUpdatedMessage;
-import com.rabbitlab.storefront.application.port.in.CatalogUpdate;
+import com.rabbitlab.storefront.application.CatalogUpdate;
 import com.rabbitlab.storefront.domain.InvalidValueException;
 import com.rabbitlab.storefront.domain.Price;
 import com.rabbitlab.storefront.domain.Sku;

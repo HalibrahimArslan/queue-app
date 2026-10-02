@@ -1,4 +1,4 @@
-package com.rabbitlab.backoffice.application.port.out;
+package com.rabbitlab.backoffice.application;
 
 import com.rabbitlab.backoffice.domain.event.DomainEvent;
 

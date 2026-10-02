@@ -1,6 +1,6 @@
 package com.rabbitlab.backoffice.adapter.out.outbox;
 
-import com.rabbitlab.backoffice.application.port.out.EventOutbox;
+import com.rabbitlab.backoffice.application.EventOutbox;
 import com.rabbitlab.backoffice.domain.event.DomainEvent;
 import com.rabbitlab.contract.BackofficeEvents;
 import com.rabbitlab.contract.BackofficeMessage;

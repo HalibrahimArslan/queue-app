@@ -1,7 +1,7 @@
 package com.rabbitlab.storefront.adapter.in.messaging;
 
-import com.rabbitlab.storefront.application.port.in.CatalogUpdate;
-import com.rabbitlab.storefront.application.port.in.UpdateCatalogUseCase;
+import com.rabbitlab.storefront.application.CatalogService;
+import com.rabbitlab.storefront.application.CatalogUpdate;
 import com.rabbitlab.storefront.domain.InvalidValueException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,20 +11,20 @@ import org.springframework.amqp.core.MessageProperties;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.List;
 import java.util.Map;
 
 /**
- * Storefront'un RabbitMQ girişi. Use case'i çağırır; RabbitMQ'ya özgü her şey (ack, x-death, park)
- * burada kalır. Faz 1'de bunların hepsi tek sınıftaydı ve iş mantığıyla iç içeydi (acıtan nokta 1).
+ * Storefront'un RabbitMQ girişi (dış halka). Mesajı çevirir ve application servisini çağırır;
+ * RabbitMQ'ya özgü her şey (ack, x-death, park) burada kalır. Transaction ve inbox bilmez (P3-M2):
+ * ikisi de {@link CatalogService}'in içinde.
  *
  * <table>
  *   <tr><th>Durum</th><th>Tepki</th></tr>
  *   <tr><td>Başarılı</td><td>ack</td></tr>
  *   <tr><td>Daha önce işlenmiş message-id</td><td>hiçbir şey yapmadan ack</td></tr>
- *   <tr><td>Bozuk/kurallara aykırı mesaj</td><td>park kuyruğuna taşı, ack (tekrar denemek işe yaramaz)</td></tr>
+ *   <tr><td>Bozuk/kurallara aykırı/kimliksiz mesaj</td><td>park kuyruğuna taşı, ack (tekrar denemek işe yaramaz)</td></tr>
  *   <tr><td>Geçici hata (bilinmeyen ürün, DB kopuk...)</td>
  *       <td>reject → bekleme odası → gecikmeli tekrar; {@code max-attempts} sonra park</td></tr>
  * </table>
@@ -37,19 +37,14 @@ class CatalogMessageListener {
     private static final long PARK_CONFIRM_TIMEOUT_MS = 5_000;
 
     private final MessageTranslator translator;
-    private final UpdateCatalogUseCase updateCatalog;
-    private final ProcessedMessages processed;
-    private final TransactionTemplate transaction;
+    private final CatalogService catalog;
     private final RabbitTemplate rabbit;
     private final MessagingProperties properties;
 
-    CatalogMessageListener(MessageTranslator translator, UpdateCatalogUseCase updateCatalog,
-                           ProcessedMessages processed, TransactionTemplate transaction, RabbitTemplate rabbit,
+    CatalogMessageListener(MessageTranslator translator, CatalogService catalog, RabbitTemplate rabbit,
                            MessagingProperties properties) {
         this.translator = translator;
-        this.updateCatalog = updateCatalog;
-        this.processed = processed;
-        this.transaction = transaction;
+        this.catalog = catalog;
         this.rabbit = rabbit;
         this.properties = properties;
     }
@@ -68,7 +63,7 @@ class CatalogMessageListener {
         long attempt = rejectedCount(message.getMessageProperties(), queue) + 1;
         try {
             CatalogUpdate update = translator.translate(message);
-            apply(message.getMessageProperties().getMessageId(), update);
+            catalog.apply(message.getMessageProperties().getMessageId(), update);
         } catch (InvalidMessageException | InvalidValueException e) {
             park(message, queue, attempt, e);
         } catch (RuntimeException e) {
@@ -79,20 +74,6 @@ class CatalogMessageListener {
                 throw new AmqpRejectAndDontRequeueException(e); // DLX → <kuyruk>.retry
             }
         }
-    }
-
-    /**
-     * Inbox kaydı ve katalog güncellemesi tek transaction: use case'in kendi transaction'ı bu
-     * transaction'a katılır. Güncelleme başarısız olursa inbox kaydı da geri alınır.
-     */
-    private void apply(String messageId, CatalogUpdate update) {
-        transaction.executeWithoutResult(status -> {
-            if (messageId != null && !processed.markProcessed(messageId)) {
-                log.debug("Tekrar gelen mesaj atlandı: {}", messageId);
-                return;
-            }
-            updateCatalog.apply(update);
-        });
     }
 
     /** Kaçıncı deneme? x-death'te bu kuyruktan "rejected" sebebiyle kaç kez çıktığına bakar. */

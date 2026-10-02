@@ -1,4 +1,4 @@
-package com.rabbitlab.storefront.application.port.in;
+package com.rabbitlab.storefront.application;
 
 import com.rabbitlab.storefront.domain.InvalidValueException;
 import com.rabbitlab.storefront.domain.Price;

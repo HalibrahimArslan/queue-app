@@ -1,6 +1,6 @@
 package com.rabbitlab.storefront.adapter.out.persistence;
 
-import com.rabbitlab.storefront.application.port.out.Transaction;
+import com.rabbitlab.storefront.application.Transaction;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.support.TransactionTemplate;
 
