@@ -37,8 +37,9 @@ import static org.mockito.Mockito.doThrow;
  * Mesajı RabbitMQ'ya taşımak ayrı bir işin (relay, P2-M3) görevi.
  *
  * <p>Testler aynı veritabanını paylaşıyor; her test kendi SKU'sunu kullanarak izole kalıyor.
+ * Relay kapalı: outbox satırının "yayınlanmamış" hâlini görmek istiyoruz.
  */
-@SpringBootTest
+@SpringBootTest(properties = "backoffice.outbox.scheduling-enabled=false")
 @Import(TestcontainersConfiguration.class)
 class ProductPersistenceIT {
 
